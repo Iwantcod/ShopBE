@@ -2,14 +2,19 @@ package com.example.shopPJT.user.service;
 
 import com.example.shopPJT.businessInfo.entity.BusinessInfo;
 import com.example.shopPJT.businessInfo.repository.BusinessInfoRepository;
+import com.example.shopPJT.global.exception.ApplicationError;
+import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.user.dto.JoinSellerDto;
 import com.example.shopPJT.user.dto.JoinUserDto;
 import com.example.shopPJT.user.dto.ResUserDto;
 import com.example.shopPJT.user.dto.UpdateUserDto;
+import com.example.shopPJT.user.entity.RoleType;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.util.AuthUtil;
 import com.example.shopPJT.util.JwtUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,8 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final BusinessInfoRepository businessInfoRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, BusinessInfoRepository businessInfoRepository) {
@@ -52,16 +59,18 @@ public class UserService {
 
     // 이메일 중복 검사
     @Transactional(readOnly = true)
-    public boolean isExistUser(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.isPresent();
+    public void isExistUser(String email) {
+        Optional<User> user = userRepository.findEmailByEmail(email);
+        if(user.isPresent()) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_EMAIL);
+        }
     }
 
     // 회원가입 공통로직
     private User basicJoin(JoinUserDto joinUserDto) {
-        // 이메일, 비밀번호, 이름, 전화번호 중 하나라도 값을 전달받지 못하면 null 반환
+        // 이메일, 비밀번호, 이름 중 하나라도 값을 전달받지 못하면 null 반환
         if(joinUserDto.getEmail() == null || joinUserDto.getPassword() == null
-                || joinUserDto.getName() == null || joinUserDto.getPhone() == null) {
+                || joinUserDto.getName() == null) {
             return null;
         }
         User user = new User();
@@ -72,9 +81,7 @@ public class UserService {
         user.setName(joinUserDto.getName());
         user.setAddress(joinUserDto.getAddress());
         user.setBirth(joinUserDto.getBirth());
-        user.setPhone(joinUserDto.getPhone());
         user.setZipCode(joinUserDto.getZipCode());
-        user.setRole(joinUserDto.getRole());
         return user;
     }
 
@@ -83,7 +90,7 @@ public class UserService {
     public boolean join(JoinUserDto joinUserDto) {
         User user = basicJoin(joinUserDto);
         if(user == null){
-            return false;
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         } else {
             userRepository.save(user);
             return true;
@@ -96,7 +103,7 @@ public class UserService {
     public boolean joinSeller(JoinSellerDto joinSellerDto) {
         User user = basicJoin(joinSellerDto);
         if(user == null){
-            return false;
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
         User savedUser = userRepository.save(user);  // 일반 사용자와 User 테이블에 입력되는 로직은 동일
 
@@ -127,12 +134,12 @@ public class UserService {
 
         if(refreshToken == null) {
             log.error("Token Refresh Error: Cannot Found Refresh Token Cookie");
-            return null;
+            throw new ApplicationException(ApplicationError.REFRESH_TOKEN_NOT_FOUND);
         }
         Long userId = jwtUtil.getRefreshUserId(refreshToken);
         if(!jwtUtil.isExistRefreshToken(userId, refreshToken)) {
             log.error("Token Refresh Error: This Token Does Not Match to User's Refresh Token");
-            return null;
+            throw new ApplicationException(ApplicationError.REFRESH_TOKEN_NOT_MATCH);
         }
         String role = jwtUtil.getRefreshRole(refreshToken);
 
@@ -143,7 +150,7 @@ public class UserService {
         // 해당 회원의 'refresh token' 컬럼 값을 업데이트. 이때 1개의 행만 업데이트한게 아니라면 예외처리 발생
         if(userRepository.updateRefreshToken(userId, newCookies[1].getValue()) != 1) {
             log.error("Token Refresh Error: Failed to Update Refresh Token");
-            return null;
+            throw new ApplicationException(ApplicationError.REFRESH_TOKEN_UPDATE_ERROR);
         }
         return newCookies;
     }
@@ -151,7 +158,11 @@ public class UserService {
 
     @Transactional  // update 벌크 쿼리문을 트랜젝션 단위로 실행하기 위해 정의한 메소드: LoginFilter에서 사용하기 위해 정의
     public int setRefreshToken(Long userId, Cookie refreshToken) {
-        return userRepository.updateRefreshToken(userId, refreshToken.getValue());
+        int result = userRepository.updateRefreshToken(userId, refreshToken.getValue());
+        // 벌크 연산 후 영속성 컨텍스트 비우기: 이 트랙젝션 범위에만 국지적으로 영향을 미친다.
+        entityManager.flush();
+        entityManager.clear();
+        return result;
     }
 
 
@@ -159,15 +170,15 @@ public class UserService {
     public boolean updateUser(UpdateUserDto updateUserDto) {
         Long authUserId = AuthUtil.getSecurityContextUserId();
         if(authUserId == null) {
-            return false;
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
         }
         if(!authUserId.equals(updateUserDto.getUserId())) {
-            return false;
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
         Optional<User> user = userRepository.findById(updateUserDto.getUserId());
         if(user.isEmpty()) {
-            return false;
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
         if(updateUserDto.getPassword() != null) {
             user.get().setPassword(bCryptPasswordEncoder.encode(updateUserDto.getPassword()));
@@ -187,7 +198,8 @@ public class UserService {
         if(updateUserDto.getZipCode() != null) {
             user.get().setZipCode(updateUserDto.getZipCode());
         }
-        userRepository.save(user.get());
+        // 트랜잭션으로 관리되는 메소드는 메소드 종료 시 '트랜잭션 커밋'이 발생하므로, 별도의 save() 호출이 필요없다.(변경사항 자동 커밋)
+//        userRepository.save(user.get());
         return true;
     }
 
@@ -198,13 +210,13 @@ public class UserService {
         Long userId = AuthUtil.getSecurityContextUserId();
         if(userId == null) {
             // JWT에 회원 식별자 정보가 존재하지 않는 경우, null 반환
-            return null;
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
         }
 
         // 회원 식별자로 회원 조회
         Optional<User> user = userRepository.findById(userId);
         if(user.isEmpty()) {
-            return null;
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
 
         // 조회된 회원 엔티티를 ResUserDto로 변환하여 반환
@@ -216,10 +228,63 @@ public class UserService {
     public ResUserDto getUserInfoById(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         if(user.isEmpty()) {
-            return null;
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
+
+        if(user.get().getIsDeleted()) {
+            // '삭제처리'된 회원의 정보는 제공하지 않는다.
+            throw new ApplicationException(ApplicationError.USER_DELETED);
+        }
+
         return toDto(user.get());
     }
 
+    @Transactional(readOnly = true)
+    public ResUserDto getUserInfoByEmail(String email) {
+        Optional<User> user = userRepository.findEmailByEmail(email);
+        if(user.isEmpty()) {
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
+        }
 
+        if(user.get().getIsDeleted()) {
+            // '삭제처리'된 회원의 정보는 제공하지 않는다.
+            throw new ApplicationException(ApplicationError.USER_DELETED);
+        }
+
+        return toDto(user.get());
+    }
+
+    @Transactional // 자기 자신 삭제(탈퇴) 처리
+    public boolean userDeleteTrue(Long userId) {
+        if(userId == null) {
+            // JWT에 회원 식별자 정보가 존재하지 않는 경우, null 반환
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
+        }
+
+        int affectedUser = userRepository.setUserDeleteTrue(userId);
+        // 벌크연산 후 영속성 컨텍스트 동기화(초기화)
+        entityManager.flush();
+        entityManager.clear();
+
+        // '삭제처리' 쿼리에 영향을 받은 행이 1개가 아니라면 실패: 예외처리
+        if(affectedUser != 1) {
+            log.error("User Delete Error");
+            throw new ApplicationException(ApplicationError.USER_DELETE_FAIL);
+        } else {
+            return true;
+        }
+    }
+
+
+    @Transactional // 특정 유저의 권한을 '판매자'로 변경
+    public boolean grantSellerAuth(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isEmpty()) {
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
+        }
+
+        user.get().setRole(RoleType.ROLE_SELLER);
+        userRepository.save(user.get());
+        return true;
+    }
 }

@@ -11,10 +11,10 @@ import lombok.Getter;
 public class Category {
     @Id @GeneratedValue @Column(name = "CATEGORY_ID")
     private Long id;
-    @Column(nullable = false)
-    private CategoryName name;
+    @Column(nullable = false, unique = true)
+    private String name;
 
-    public void setName(CategoryName name) {
+    public void setName(String name) {
         this.name = name;
     }
 }

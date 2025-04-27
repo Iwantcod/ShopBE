@@ -1,0 +1,49 @@
+package com.example.shopPJT.global.exception;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+public enum ApplicationError {
+    // 에러 종류
+    // 접근 권한 없는 경우: UNAUTHORIZED
+    // 찾을 수 없는 경우: NOT_FOUND
+    // 요청이 데이터베이스 혹은 스토리지에서 수행 실패 시: INTERNAL_SERVER_ERROR
+
+    // 인증 및 인가 관련
+    ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청의 토큰에 Role 정보가 존재하지 않습니다."),
+    USERID_NOT_FOUND(HttpStatus.NOT_FOUND, "요청의 토큰에 회원 식별자가 존재하지 않습니다."),
+    ACCESS_NOT_ALLOWED(HttpStatus.UNAUTHORIZED, "접근 권한이 없습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "요청에서 Refresh Token이 포함된 쿠키를 찾을 수 없습니다."),
+    REFRESH_TOKEN_NOT_MATCH(HttpStatus.NOT_FOUND, "Refresh Token이 유효하지 않습니다."),
+    REFRESH_TOKEN_UPDATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류로 인해 Refresh Token 정보를 갱신하지 못했습니다."),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
+    DUPLICATE_PHONE(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),
+
+    // 데이터 관련
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보를 찾을 수 없습니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품 정보를 찾을 수 없습니다."),
+    PRODUCT_DELETED(HttpStatus.NOT_FOUND, "삭제된 상품입니다."),
+    BUSINESSINFO_NOT_FOUND(HttpStatus.NOT_FOUND, "사업자 등록정보를 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."),
+    USER_DELETED(HttpStatus.NOT_FOUND, "탈퇴한 회원입니다."),
+    PRODUCTSPEC_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 모델 정보를 찾을 수 없습니다."),
+    PRODUCT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 수량은 0 이상이어야 합니다."),
+
+
+    // 데이터베이스 및 스토리지 관련
+    USER_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 회원 정보를 삭제하지 못했습니다."),
+    PRODUCT_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 대표 이미지 업로드를 실패했습니다."),
+    PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 업로드를 실패했습니다."),
+    PRODUCT_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 대표 이미지 제거를 실패했습니다."),
+    PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 제거를 실패했습니다.")
+    ;
+
+
+    private final HttpStatus httpStatus;
+    private final String message;
+    ApplicationError(HttpStatus httpStatus, String message) {
+        this.httpStatus = httpStatus;
+        this.message = message;
+    }
+}

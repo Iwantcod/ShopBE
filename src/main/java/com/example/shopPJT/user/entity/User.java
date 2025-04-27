@@ -7,6 +7,11 @@ import java.time.LocalDate;
 
 @Entity(name = "USERS")
 @Getter
+@Table(
+        indexes = {
+                @Index(name = "idx_user_id", columnList = "USER_ID")
+        }
+)
 public class User {
     @Id @GeneratedValue @Column(name = "USER_ID")
     private Long id;
@@ -34,14 +39,15 @@ public class User {
 
     private String refreshToken;
 
-    private boolean isDeleted = false;
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean isDeleted = false;
 
 //    @OneToMany(mappedBy = "user")
 //    private List<Product> productList = new ArrayList<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RoleType role;
+    private RoleType role = RoleType.ROLE_USER; // 기본값: '일반 사용자'로 설정
 
     public void setEmail(String email) {
         this.email = email;
@@ -83,7 +89,7 @@ public class User {
         this.role = role;
     }
 
-    public void setIsDeleted(boolean isDeleted) {
-        this.isDeleted = isDeleted;
+    public void setDeleted(Boolean deleted) {
+        this.isDeleted = deleted;
     }
 }

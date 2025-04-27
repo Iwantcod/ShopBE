@@ -3,31 +3,49 @@ package com.example.shopPJT.product.entity;
 import com.example.shopPJT.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
+@Table(
+        indexes = {
+                @Index(name = "idx_product_id", columnList = "PRODUCT_ID")
+        }
+)
 public class Product {
     @Id @GeneratedValue @Column(name = "PRODUCT_ID")
     private Long id;
     private String name;
 
-    @JoinColumn(name = "CATEGORY_ID")
+    @JoinColumn(name = "CATEGORY_ID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-
     private Category category;
+
+    @Column(nullable = false)
     private Long logicalFK;
+
+    @Column(nullable = false)
     private int price;
+
+    @Column(nullable = false)
     private int inventory;
+
+    @CreationTimestamp
     private LocalDate createdAt;
 
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "USER_ID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
     private String productImageUrl;
     private String descriptionImageUrl;
-    private boolean isDeleted = false;
+
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean isDeleted = false;
+
+    private int volume = 0; // 누적 판매량 저장하는 컬럼
 
     public void setName(String name) {
         this.name = name;
@@ -65,7 +83,11 @@ public class Product {
         this.descriptionImageUrl = descriptionImageUrl;
     }
 
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setDeleted(Boolean deleted) {
+        this.isDeleted = deleted;
+    }
+
+    public void setVolume(int volume) {
+        this.volume = volume;
     }
 }

@@ -1,0 +1,29 @@
+package com.example.shopPJT.product.repository;
+
+import com.example.shopPJT.product.entity.Product;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE) // 조회 결과 행에 비관적 락의 쓰기 락을 활성화한다. -> 락이 활성화되어도 일반적인 select 문에는 조회된다.
+    @Query("SELECT p FROM Product p where p.id = :productId")
+    Optional<Product> findByIdWithPessimisticLock(@Param("productId") Long productId);
+
+
+    @Modifying
+    @Query("UPDATE Product p SET p.isDeleted = true WHERE p.id = :userId")
+    void setAllProductDeleteTrueByUserId(@Param("userId") Long userId);
+
+
+    // '삭제' 상태가 아닌 상품 정보 10개 페이징 조회
+    @Query("SELECT p FROM Product p WHERE p.isDeleted = false AND p.category.id = :categoryId")
+    Page<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Long categoryId);
+
+}
