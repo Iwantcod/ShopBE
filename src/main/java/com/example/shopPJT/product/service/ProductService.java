@@ -11,6 +11,7 @@ import com.example.shopPJT.product.entity.Product;
 import com.example.shopPJT.product.repository.CategoryRepository;
 import com.example.shopPJT.product.repository.ProductRepository;
 import com.example.shopPJT.productSpec.repository.*;
+import com.example.shopPJT.productSpec.service.ProductSpecServiceFactory;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.util.AuthUtil;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -43,32 +45,20 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final CpuSpecRepository cpuSpecRepository;
-    private final GraphicSpecRepository graphicSpecRepository;
-    private final CaseSpecRepository caseSpecRepository;
-    private final MemorySpecRepository memorySpecRepository;
-    private final PowerSpecRepository powerSpecRepository;
-    private final MainBoardSpecRepository mainBoardSpecRepository;
-    private final CoolerSpecRepository coolerSpecRepository;
-    private final StorageSpecRepository storageSpecRepository;
+    private final ProductSpecServiceFactory productSpecServiceFactory;
 
     @Value("${app.storage-path}")
     private String storagePath;
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository, CpuSpecRepository cpuSpecRepository, GraphicSpecRepository graphicSpecRepository, CaseSpecRepository caseSpecRepository, MemorySpecRepository memorySpecRepository, PowerSpecRepository powerSpecRepository, MainBoardSpecRepository mainBoardSpecRepository, CoolerSpecRepository coolerSpecRepository, StorageSpecRepository storageSpecRepository) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository,
+                          ProductSpecServiceFactory productSpecServiceFactory) {
+
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
-        this.cpuSpecRepository = cpuSpecRepository;
-        this.graphicSpecRepository = graphicSpecRepository;
-        this.caseSpecRepository = caseSpecRepository;
-        this.memorySpecRepository = memorySpecRepository;
-        this.powerSpecRepository = powerSpecRepository;
-        this.mainBoardSpecRepository = mainBoardSpecRepository;
-        this.coolerSpecRepository = coolerSpecRepository;
-        this.storageSpecRepository = storageSpecRepository;
+        this.productSpecServiceFactory = productSpecServiceFactory;
     }
 
     private ResProductDto toDto(Product product) {
@@ -102,13 +92,16 @@ public class ProductService {
 
 
     @Transactional(readOnly = true) // 등록일자 기준 내림차순 정렬하고, 페이징한 결과 응답
-    public List<ResProductDto> getAllProductDesc(String categoryName, int startOffset) {
+    public List<ResProductDto> getAllProductDesc(String categoryName, Integer startOffset) {
         // 프론트로부터 1,2,3,4... 의 값을 받는다. 이 값에 10을 곱한 값이 조회 시작지점이다.
 
         Optional<Category> category = categoryRepository.findByName(categoryName);
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
         if(category.isEmpty()) {
             throw new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND);
+        }
+        if(startOffset == null) {
+            startOffset = 0;
         }
 
         int pageSize = 10;
@@ -125,8 +118,12 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true) // 판매량 기준 내림차순 정렬, 페이징한 결과 응답
-    public List<ResProductDto> getAllProductVolumeDesc(String categoryName, int startOffset) {
+    public List<ResProductDto> getAllProductVolumeDesc(String categoryName, Integer startOffset) {
         int pageSize = 10;
+
+        if(startOffset == null) {
+            startOffset = 0;
+        }
 
         Optional<Category> category = categoryRepository.findByName(categoryName);
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
@@ -146,12 +143,15 @@ public class ProductService {
 
 
     @Transactional(readOnly = true) // 두번째 인자의 값에 따라 분기하여 가격 순 내림차순(true)/오름차순(false) 조회 결과를 페이징하여 응답
-    public List<ResProductDto> getAllProductPrice(String categoryName, int startOffset, boolean isDescending) {
+    public List<ResProductDto> getAllProductPrice(String categoryName, Integer startOffset, boolean isDescending) {
         int pageSize = 10;
         Optional<Category> category = categoryRepository.findByName(categoryName);
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
         if(category.isEmpty()) {
             throw new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND);
+        }
+        if(startOffset == null) {
+            startOffset = 0;
         }
 
         Pageable pageable;
@@ -224,26 +224,7 @@ public class ProductService {
         }
 
         // 'CategoryName'에 해당하는 테이블에서 productId를 통해 조회를 했을 때 결과물이 있으면 true, 없으면 false
-        if(categoryName.equals(CategoryName.CPU.toString())) {
-            return cpuSpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.GRAPHIC.toString())) {
-            return graphicSpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.CASE.toString())) {
-            return caseSpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.MEMORY.toString())) {
-            return memorySpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.POWER.toString())) {
-            return powerSpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.MAINBOARD.toString())) {
-            return mainBoardSpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.COOLER.toString())) {
-            return coolerSpecRepository.findById(productId).isPresent();
-        } else if (categoryName.equals(CategoryName.STORAGE.toString())) {
-            return storageSpecRepository.findById(productId).isPresent();
-        } else {
-            // 시스템에 존재하지 않는 문자열이 입력된 경우에는 false 반환
-            return false;
-        }
+        return productSpecServiceFactory.getStrategy(categoryName).isExist(productId);
     }
 
     // 상품 정보 추가

@@ -36,7 +36,7 @@ public enum ApplicationError {
     PRODUCT_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 대표 이미지 업로드를 실패했습니다."),
     PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 업로드를 실패했습니다."),
     PRODUCT_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 대표 이미지 제거를 실패했습니다."),
-    PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 제거를 실패했습니다.")
+    PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 제거에 실패했습니다.")
     ;
 
 

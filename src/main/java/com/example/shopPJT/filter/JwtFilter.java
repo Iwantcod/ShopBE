@@ -25,6 +25,11 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        return false; // Async-Dispatch 에도 필터를 수행하여 HTTP 헤더를 파싱하도록 설정
+    }
+
 
     @Override // access token을 검증하는 메소드. refresh token에 대한 검증 요청은 AuthController가 처리
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, ExpiredJwtException {

@@ -1,5 +1,7 @@
 package com.example.shopPJT.util;
 
+import com.example.shopPJT.global.exception.ApplicationError;
+import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.user.details.JwtUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

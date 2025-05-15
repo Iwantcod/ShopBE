@@ -12,11 +12,11 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class JoinUserDto {
-    @Email @NotBlank
+    @Email @NotBlank(message = "이메일은 필수 정보입니다.")
     private String email;
-    @NotBlank
+    @NotBlank(message = "비밀번호는 필수 정보입니다.")
     private String password;
-    @NotBlank
+    @NotBlank(message = "이름은 필수 정보입니다.")
     private String name;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
     private LocalDate birth;

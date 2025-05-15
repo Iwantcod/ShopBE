@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -45,10 +46,10 @@ public class UserController {
 
     @PatchMapping // 자기 자신의 User 테이블 수정
     @Operation(summary = "자신의 회원 정보 수정", description = "jwt의 userId 정보에 해당하는 회원의 정보 수정")
-    public ResponseEntity<?> updateUser(@ModelAttribute UpdateUserDto updateUserDto) {
+    public ResponseEntity<?> updateUser(@Valid @ModelAttribute UpdateUserDto updateUserDto) {
         if(userService.updateUser(updateUserDto)) {
 //            return ResponseEntity.status(302).header(HttpHeaders.LOCATION, clientUrl + "/auth/login").build();
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("회원 정보가 수정되었습니다.");
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -101,7 +102,7 @@ public class UserController {
         }
 
         if(userService.userDeleteTrue(userId)) {
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("회원 탈퇴되었습니다.");
         } else {
             return ResponseEntity.badRequest().build();
         }

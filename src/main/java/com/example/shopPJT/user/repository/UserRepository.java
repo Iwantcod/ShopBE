@@ -15,6 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Optional<User> findByoAuth2Id(String oAuth2Id);
 
+
     @Modifying // 로그인 성공 시 해당 유저의 'refresh Token' 컬럼 값을 업데이트 요청
     @Query("UPDATE USERS u SET u.refreshToken = :refreshToken WHERE u.id = :userId")
     int updateRefreshToken(@Param("userId") Long userId, @Param("refreshToken") String refreshToken);
