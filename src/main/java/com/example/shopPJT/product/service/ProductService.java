@@ -21,10 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +71,7 @@ public class ProductService {
         resProductDto.setCreatedAt(product.getCreatedAt());
         resProductDto.setLogicalFK(product.getLogicalFK());
         resProductDto.setCategoryId(product.getCategory().getId());
-        resProductDto.setUserId(product.getUser().getId());
+        resProductDto.setSellerUserId(product.getUser().getId());
         resProductDto.setDescriptionImageUrl(product.getDescriptionImageUrl());
         resProductDto.setVolume(product.getVolume());
         return resProductDto;
@@ -106,13 +106,13 @@ public class ProductService {
 
         int pageSize = 10;
         Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
-        Page<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
+        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
         if(products.isEmpty()){
             log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
 
-        Page<ResProductDto> dtoPage = products.map(this::toDto);
+        Slice<ResProductDto> dtoPage = products.map(this::toDto);
         log.info("GET Post SUCCESS.");
         return dtoPage.getContent(); // Page 객체의 메타데이터 없이 본문 데이터만 반환
     }
@@ -132,12 +132,12 @@ public class ProductService {
         }
 
         Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("volume").descending());
-        Page<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
+        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
         if(products.isEmpty()){
             log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
-        Page<ResProductDto> dtoPage = products.map(this::toDto);
+        Slice<ResProductDto> dtoPage = products.map(this::toDto);
         return dtoPage.getContent();
     }
 
@@ -163,16 +163,16 @@ public class ProductService {
             pageable = PageRequest.of(startOffset, pageSize, Sort.by("price").ascending());
         }
 
-        Page<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
+        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
         if(products.isEmpty()){
             log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
-        Page<ResProductDto> dtoPage = products.map(this::toDto);
+        Slice<ResProductDto> dtoPage = products.map(this::toDto);
         return dtoPage.getContent();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) // 식별자로 조회
     public ResProductDto getProductById(Long productId) {
         Optional<Product> product = productRepository.findById(productId);
         if(product.isPresent()){
@@ -181,6 +181,26 @@ public class ProductService {
             log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
+    }
+
+    @Transactional(readOnly = true) // 특정 판매자가 게시한 상품을 모두 조회
+    public List<ResProductDto> getProductListByUserId(Long userId, Integer startOffset) {
+        if(userId == null) {
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
+        }
+        if(startOffset == null) {
+            startOffset = 0;
+        }
+        int pageSize = 10;
+
+        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
+        Slice<Product> productList = productRepository.findAllActiveByUserId(pageable, userId);
+        if(productList.isEmpty()){
+            log.info("GET Product FAIL: Cannot find Product.");
+            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
+        }
+        Slice<ResProductDto> dtoPage = productList.map(this::toDto);
+        return dtoPage.getContent();
     }
 
 
@@ -294,7 +314,7 @@ public class ProductService {
         return true;
     }
     @Transactional // 상품 정보 수정: 이미지 존재하면 변경하는 것으로 간주
-    public void updateProduct(Long productId, ReqUpdateProductInfoDto reqUpdateProductInfoDto) throws IOException {
+    public void updateProduct(Long productId, ReqUpdateProductInfoDto reqUpdateProductInfoDto) {
         Long userId = AuthUtil.getSecurityContextUserId();
         Optional<Product> product = productRepository.findById(productId);
         if(userId == null) {
@@ -316,12 +336,18 @@ public class ProductService {
             if(!removeImage(product.get().getProductImageUrl())) {
                 throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_REMOVE_FAIL); // 추후 비동기 작업으로 변경할 것
             }
+
             // 새 상품 대표 이미지 업로드
-            String newProductImageUrl = uploadImage(reqUpdateProductInfoDto.getProductImage());
-            if(newProductImageUrl == null) {
-                throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_UPLOAD_FAIL); // 추후 비동기 작업으로 변경할 것
+            try {
+                String newProductImageUrl = uploadImage(reqUpdateProductInfoDto.getProductImage());
+                if(newProductImageUrl == null) {
+                    throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_UPLOAD_FAIL); // 추후 비동기 작업으로 변경할 것
+                }
+                product.get().setProductImageUrl(newProductImageUrl);
+            } catch (IOException e){
+                throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_UPLOAD_FAIL);
             }
-            product.get().setProductImageUrl(newProductImageUrl);
+
         }
         if(reqUpdateProductInfoDto.getDescriptionImage() != null) {
             // 기존 상품 상세페이지 이미지 제거
@@ -329,11 +355,16 @@ public class ProductService {
                 throw new ApplicationException(ApplicationError.PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL);
             }
             // 새 상품 상세페이지 이미지 업로드
-            String newDescriptionImageUrl = uploadImage(reqUpdateProductInfoDto.getDescriptionImage());
-            if(newDescriptionImageUrl == null) {
+            try {
+                String newDescriptionImageUrl = uploadImage(reqUpdateProductInfoDto.getDescriptionImage());
+                if(newDescriptionImageUrl == null) {
+                    throw new ApplicationException(ApplicationError.PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL);
+                }
+                product.get().setDescriptionImageUrl(newDescriptionImageUrl);
+            } catch (IOException e) {
                 throw new ApplicationException(ApplicationError.PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL);
             }
-            product.get().setDescriptionImageUrl(newDescriptionImageUrl);
+
         }
 
         if(reqUpdateProductInfoDto.getPrice() > 0) {
@@ -394,6 +425,21 @@ public class ProductService {
             e.printStackTrace();
         }
         product.get().setInventory(prev - quantity);
+    }
+
+
+    // 스토리지에서 실제 이미지 파일 로드하여 'Resource' 인터페이스 타입으로 담아 반환
+    public Resource getImageFile(String imageUrl) {
+        try {
+            Path file = Path.of(storagePath).resolve(imageUrl).normalize();
+            if(!Files.exists(file)) {
+                throw new ApplicationException(ApplicationError.IMAGE_NOT_FOUND);
+            }
+            return new UrlResource(file.toUri()); // UrlResource는 Resource 인터페이스의 구현체를 상속한 자식 클래스
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new ApplicationException(ApplicationError.IMAGE_LOAD_FAIL);
+        }
     }
 
 }

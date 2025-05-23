@@ -29,6 +29,9 @@ public enum ApplicationError {
     USER_DELETED(HttpStatus.NOT_FOUND, "탈퇴한 회원입니다."),
     PRODUCTSPEC_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 모델 정보를 찾을 수 없습니다."),
     PRODUCT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 수량은 0 이상이어야 합니다."),
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니가 비었습니다."),
+    CARTID_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니 상품을 찾을 수 없습니다."),
+    CART_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "장바구니 수량은 1 이상이어야 합니다."),
 
 
     // 데이터베이스 및 스토리지 관련
@@ -36,7 +39,10 @@ public enum ApplicationError {
     PRODUCT_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 대표 이미지 업로드를 실패했습니다."),
     PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 업로드를 실패했습니다."),
     PRODUCT_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 대표 이미지 제거를 실패했습니다."),
-    PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 제거에 실패했습니다.")
+    PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 상품 상세 페이지 이미지 제거에 실패했습니다."),
+    IMAGE_REMOVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 이미지 제거에 실패했습니다."),
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
+    IMAGE_LOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 이유로 이미지를 불러올 수 없습니다.")
     ;
 
 

@@ -32,7 +32,7 @@ public class Product {
     private int price;
 
     @Column(nullable = false)
-    @PositiveOrZero
+//    @PositiveOrZero
     private int inventory;
 
     @CreationTimestamp

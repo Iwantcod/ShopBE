@@ -1,5 +1,7 @@
 package com.example.shopPJT.product.controller;
 
+import com.example.shopPJT.global.exception.ApplicationError;
+import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.product.dto.ReqProductDto;
 import com.example.shopPJT.product.dto.ReqUpdateProductInfoDto;
 import com.example.shopPJT.product.dto.ResProductDto;
@@ -7,11 +9,15 @@ import com.example.shopPJT.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -78,6 +84,18 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/seller/{userId}/{startOffset}")
+    @Operation(summary = "판매자 식별자를 통해 특정 판매자가 업로드한 모든 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
+    public ResponseEntity<?> getProductListBySellerId(@PathVariable("userId") Long userId, @PathVariable Integer startOffset) {
+        List<ResProductDto> productDtoList = productService.getProductListByUserId(userId, startOffset);
+        if(productDtoList != null) {
+            return ResponseEntity.ok(productDtoList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "상품 추가", description = "2개 이미지 필수. 등록자 id는 jwt내에 존재하는 id로 사용")
     public ResponseEntity<?> addProduct(@Valid @ModelAttribute ReqProductDto reqProductDto) throws IOException {
@@ -98,7 +116,7 @@ public class ProductController {
     // 상품 게시글 정보 수정
     @PostMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "상품 정보(이름, 가격, 이미지) 수정", description = "이 요청에 이미지 포함 시, '이미지 변경'으로 간주")
-    public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId, @Valid @ModelAttribute ReqUpdateProductInfoDto reqUpdateProductInfoDto) throws IOException {
+    public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId, @Valid @ModelAttribute ReqUpdateProductInfoDto reqUpdateProductInfoDto) {
         productService.updateProduct(productId, reqUpdateProductInfoDto);
         return ResponseEntity.ok().body("상품 정보가 수정되었습니다.");
     }
@@ -115,6 +133,18 @@ public class ProductController {
     public ResponseEntity<?> decreaseProductInven(@PathVariable Long productId, @PathVariable Integer quantity) {
         productService.decreaseInventory(productId, quantity);
         return ResponseEntity.ok().body("상품 재고 수량이 삭제되었습니다.");
+    }
+
+    @GetMapping("/image") // 스토리지에 저장된 실제 이미지 파일을 반환: 이미지 이름은 URL 쿼리 형식으로 입력받아야 한다.
+    public ResponseEntity<Resource> getImageFile(@RequestParam("imageName") String imageName) {
+        try {
+            Resource image = productService.getImageFile(imageName);
+            Path path = Paths.get(image.getURI());
+            String contentType = Files.probeContentType(path);
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(image);
+        } catch (IOException e) {
+            throw new ApplicationException(ApplicationError.IMAGE_LOAD_FAIL);
+        }
     }
 
 }

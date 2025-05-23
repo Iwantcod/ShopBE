@@ -60,8 +60,7 @@ public class UserService {
     // 이메일 중복 검사
     @Transactional(readOnly = true)
     public void isExistUser(String email) {
-        Optional<User> user = userRepository.findEmailByEmail(email);
-        if(user.isPresent()) {
+        if(userRepository.existsByEmail(email)) {
             throw new ApplicationException(ApplicationError.DUPLICATE_EMAIL);
         }
     }
@@ -241,7 +240,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public ResUserDto getUserInfoByEmail(String email) {
-        Optional<User> user = userRepository.findEmailByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
         if(user.isEmpty()) {
             throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }

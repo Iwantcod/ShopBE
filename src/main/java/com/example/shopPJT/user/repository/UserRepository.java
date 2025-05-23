@@ -9,9 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("SELECT u.email FROM USERS u where u.email = :email")
-    Optional<User> findEmailByEmail(@Param("email") String email);
-
+    boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
     Optional<User> findByoAuth2Id(String oAuth2Id);
 

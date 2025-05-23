@@ -2,6 +2,7 @@ package com.example.shopPJT.cart.service;
 
 import com.example.shopPJT.cart.dto.ReqCartDto;
 import com.example.shopPJT.cart.dto.ResCartDto;
+import com.example.shopPJT.cart.dto.UpdateCartDto;
 import com.example.shopPJT.cart.entity.Cart;
 import com.example.shopPJT.cart.repository.CartRepository;
 import com.example.shopPJT.global.exception.ApplicationError;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,6 +35,8 @@ public class CartService {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
     }
+
+
 
     @Async // 장바구니에 상품 추가
     @Transactional
@@ -55,13 +59,64 @@ public class CartService {
         Product product = productRepository.findById(reqCartDto.getProductId()).orElseThrow(()
                 -> new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
 
-
         Cart cart = new Cart();
         cart.setUser(user);
         cart.setProduct(product);
         cart.setQuantity(reqCartDto.getQuantity());
         cartRepository.save(cart);
         return CompletableFuture.completedFuture("장바구니에 상품이 추가되었습니다.");
+    }
+
+    @Async
+    @Transactional
+    public CompletableFuture<Void> updateCart(Long cartId, Boolean isUp) {
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CARTID_NOT_FOUND));
+        Integer prevQuantity = cart.getQuantity();
+
+        if(isUp) {
+            cart.setQuantity(prevQuantity + 1);
+        } else {
+            if(prevQuantity - 1 < 1) {
+                throw new ApplicationException(ApplicationError.CART_QUANTITY_INVALID);
+            }
+            cart.setQuantity(prevQuantity - 1);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async
+    @Transactional
+    public CompletableFuture<Void> deleteCart(Long cartId, Long userId) {
+        if(userId == null) {
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
+        }
+        if(cartId == null) {
+            throw new ApplicationException(ApplicationError.CARTID_NOT_FOUND);
+        }
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ApplicationException(ApplicationError.CARTID_NOT_FOUND));
+        if(!cart.getUser().getId().equals(userId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+
+        cartRepository.deleteById(cartId);
+        return CompletableFuture.completedFuture(null);
+    }
+
+
+    @Transactional(readOnly = true) // 특정 유저의 장바구니에 담긴 상품 정보 및 수량 정보 등을 조회하고 반환
+    public List<ResCartDto> getCartListByUserId() {
+        Long userId = AuthUtil.getSecurityContextUserId();
+        if(userId == null) {
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
+        }
+
+        List<ResCartDto> resCartDtoList = cartRepository.findCartAndProductByUserId(userId);
+        if(resCartDtoList.isEmpty()) {
+            throw new ApplicationException(ApplicationError.CART_NOT_FOUND);
+        }
+
+        return resCartDtoList;
     }
 
 
