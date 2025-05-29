@@ -15,7 +15,7 @@ public class ReqProductDto {
     @NotNull(message = "상품명은 필수 정보입니다.")
     private String name;
     @NotNull(message = "카테고리 식별자는 필수 정보입니다.")
-    private Long categoryId;
+    private Integer categoryId;
     @NotNull(message = "상품 모델 식별자는 필수 정보입니다.")
     private Long logicalFK;
     @NotNull(message = "가격 정보는 필수 정보입니다.") @Min(1)

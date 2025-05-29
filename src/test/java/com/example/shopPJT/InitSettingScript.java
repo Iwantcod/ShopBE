@@ -1,5 +1,7 @@
 package com.example.shopPJT;
 
+import com.example.shopPJT.product.entity.Category;
+import com.example.shopPJT.product.entity.CategoryName;
 import com.example.shopPJT.product.repository.CategoryRepository;
 import com.example.shopPJT.productSpec.entity.*;
 import com.example.shopPJT.productSpec.repository.*;
@@ -8,9 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // application.yml에 명시된 데이터베이스 설정을 따라감(기본값은 H2기 때문에 이러한 별도의 설정 필요)
+@Rollback(false)
 public class InitSettingScript {
     private final CategoryRepository categoryRepository;
     private final CpuSpecRepository cpuSpecRepository;
@@ -41,14 +45,15 @@ public class InitSettingScript {
     void contextLoads() {
 
 
-        // 카테고리 정보 추가하는 스크립트
-//		CategoryName[] categoryName = {CategoryName.CPU, CategoryName.GRAPHIC, CategoryName.CASE, CategoryName.MEMORY, CategoryName.POWER,
-//				CategoryName.MAINBOARD, CategoryName.COOLER, CategoryName.STORAGE};
-//		for (CategoryName cur : categoryName) {
-//			Category category = new Category();
-//			category.setName(cur.toString());
-//			categoryRepository.save(category);
-//		}
+//         카테고리 정보 추가하는 스크립트
+		CategoryName[] categoryName = {CategoryName.CPU, CategoryName.GRAPHIC, CategoryName.CASE, CategoryName.MEMORY, CategoryName.POWER,
+				CategoryName.MAINBOARD, CategoryName.COOLER, CategoryName.STORAGE};
+		for(int i = 0; i < categoryName.length; i++) {
+			Category category = new Category();
+            category.setId(i+1);
+			category.setName(categoryName[i].toString());
+			categoryRepository.save(category);
+		}
 
 
         // 기존에 존재하는 Spec 테이블들의 모든 행 제거: modelName이 UK이기 때문에, 충돌 방지를 위함.

@@ -2,7 +2,6 @@ package com.example.shopPJT.product.entity;
 
 import com.example.shopPJT.user.entity.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -10,11 +9,6 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Table(
-        indexes = {
-                @Index(name = "idx_product_id", columnList = "PRODUCT_ID")
-        }
-)
 @org.hibernate.annotations.Check(constraints = "inventory >= 0") // 재고 수량이 반드시 0 이상이도록 제한하는 DB레벨 제약사항
 public class Product {
     @Id @GeneratedValue @Column(name = "PRODUCT_ID")

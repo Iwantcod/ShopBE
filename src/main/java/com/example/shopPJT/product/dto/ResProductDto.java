@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 public class ResProductDto extends ProductHeadDto {
-    private Long categoryId;
+    private Integer categoryId;
     private Long logicalFK;
     private LocalDate createdAt;
     private int volume; // 판매량

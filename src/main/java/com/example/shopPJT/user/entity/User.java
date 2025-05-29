@@ -7,11 +7,6 @@ import java.time.LocalDate;
 
 @Entity(name = "USERS")
 @Getter
-@Table(
-        indexes = {
-                @Index(name = "idx_user_id", columnList = "USER_ID")
-        }
-)
 public class User {
     @Id @GeneratedValue @Column(name = "USER_ID")
     private Long id;

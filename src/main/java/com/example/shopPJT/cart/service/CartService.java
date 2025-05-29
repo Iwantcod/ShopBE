@@ -2,7 +2,6 @@ package com.example.shopPJT.cart.service;
 
 import com.example.shopPJT.cart.dto.ReqCartDto;
 import com.example.shopPJT.cart.dto.ResCartDto;
-import com.example.shopPJT.cart.dto.UpdateCartDto;
 import com.example.shopPJT.cart.entity.Cart;
 import com.example.shopPJT.cart.repository.CartRepository;
 import com.example.shopPJT.global.exception.ApplicationError;

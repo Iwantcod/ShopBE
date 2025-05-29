@@ -7,11 +7,6 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(
-        indexes = {
-                @Index(name = "idx_cart_userid", columnList = "USER_ID")
-        }
-)
 @org.hibernate.annotations.Check(constraints = "quantity >= 1") // 수량 정보가 반드시 0 이상이도록 제한하는 DB레벨 제약사항
 public class Cart {
 

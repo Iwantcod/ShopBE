@@ -2,7 +2,6 @@ package com.example.shopPJT.cart.controller;
 
 import com.example.shopPJT.cart.dto.ReqCartDto;
 import com.example.shopPJT.cart.dto.ResCartDto;
-import com.example.shopPJT.cart.dto.UpdateCartDto;
 import com.example.shopPJT.cart.service.CartService;
 import com.example.shopPJT.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;

@@ -26,5 +26,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // '삭제' 상태가 아닌 상품 정보 10개 페이징 조회
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false AND p.category.id = :categoryId")
-    Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Long categoryId);
+    Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Integer categoryId);
 }

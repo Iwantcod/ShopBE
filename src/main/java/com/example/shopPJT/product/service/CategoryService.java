@@ -21,7 +21,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true) // 카테고리 식별자로 카테고리 정보 조회
-    public ResCategoryDto getCategoryById(Long categoryId) {
+    public ResCategoryDto getCategoryById(Integer categoryId) {
         Optional<Category> category = categoryRepository.findById(categoryId);
         if(category.isPresent()) {
             ResCategoryDto resCategoryDto = new ResCategoryDto();
@@ -62,6 +62,4 @@ public class CategoryService {
     public void deleteCategory(ReqCategoryDto reqCategoryDto) {
         categoryRepository.deleteById(reqCategoryDto.getCategoryId());
     }
-
-
 }

@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ResCategoryDto {
-    private Long categoryId;
+    private Integer categoryId;
     private String categoryName;
 }

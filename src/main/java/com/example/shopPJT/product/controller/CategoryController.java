@@ -21,7 +21,7 @@ public class CategoryController {
 
     @GetMapping("/{categoryId}") // 카테고리 식별자로 카테고리 조회
     @Operation(summary = "카테고리 식별자로 카테고리 조회")
-    public ResponseEntity<?> getCategoryById(@PathVariable("categoryId") Long categoryId) {
+    public ResponseEntity<?> getCategoryById(@PathVariable("categoryId") Integer categoryId) {
         ResCategoryDto resCategoryDto = categoryService.getCategoryById(categoryId);
         if(resCategoryDto == null){
             return ResponseEntity.notFound().build();
