@@ -21,7 +21,6 @@ public class Cart {
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 
-//    @PositiveOrZero // 애플리케이션 레벨 제약사항
     @Column(nullable = false)
     private Integer quantity;
 

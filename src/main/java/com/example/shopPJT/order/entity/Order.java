@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Builder 생성자를 이용한 엔티티(인스턴스)생성만을 허용
 public class Order {
-    @Id @GeneratedValue
+    @Id @GeneratedValue @Column(name = "ORDER_ID")
     private Long id;
 
     @JoinColumn(name = "USER_ID", nullable = false)
