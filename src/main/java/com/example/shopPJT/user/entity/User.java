@@ -4,12 +4,16 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity(name = "USERS")
 @Getter
 public class User {
     @Id @GeneratedValue @Column(name = "USER_ID")
     private Long id;
+
+    @Column(nullable = false, updatable = false, columnDefinition = "CHAR(36)")
+    private UUID pgCustomerKey; // UUID 값 저장
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -37,12 +41,16 @@ public class User {
     @Column(nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<Product> productList = new ArrayList<>();
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoleType role = RoleType.ROLE_USER; // 기본값: '일반 사용자'로 설정
+
+    @PrePersist // Insert 쿼리 호출 시점 직전에 pgCustomerKey 자동 생성 후 주입
+    public void onPrePersist() {
+        if(pgCustomerKey == null) {
+            pgCustomerKey = UUID.randomUUID();
+        }
+    }
 
     public void setEmail(String email) {
         this.email = email;

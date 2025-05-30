@@ -1,13 +1,64 @@
 package com.example.shopPJT.order.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.example.shopPJT.user.entity.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity(name = "Orders")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // Builder 생성자를 이용한 엔티티(인스턴스)생성만을 허용
 public class Order {
     @Id @GeneratedValue
     private Long id;
+
+    @JoinColumn(name = "USER_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
+    private String pgPaymentKey; // pg사에서 발급받은 값을 저장할 컬럼
+
+    @Column(nullable = false, updatable = false, columnDefinition = "CHAR(36)")
+    private UUID pgOrderId; // UUID 값 저장
+
+    @Column(nullable = false)
+    private Integer amount; // 총 결제 금액
+
+    @CreationTimestamp
+    private LocalDateTime requested_at; // 생성 일자 및 시각
+
+    @Column(nullable = false)
+    private String address; // 배송 주소
+
+    @Column(nullable = false)
+    private String phone; // 주문자 연락처
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderMethod method; // 주문 방법
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus; // 배송 상태
+
+    @Builder
+    public Order(User user, Integer amount, String address, String phone, OrderMethod method) {
+        this.user = user;
+        this.amount = amount;
+        this.address = address;
+        this.phone = phone;
+        this.method = method;
+        this.deliveryStatus = DeliveryStatus.PROCESSING;
+    }
+
+    @PrePersist // Insert 쿼리 호출 직전 엔티티의 pgOrderId가 비어있으면 UUID로 생성후 주입
+    public void onPrePersist() {
+        if(pgOrderId == null) pgOrderId = UUID.randomUUID();
+    }
 }
