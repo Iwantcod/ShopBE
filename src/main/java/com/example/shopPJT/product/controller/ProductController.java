@@ -6,12 +6,15 @@ import com.example.shopPJT.product.dto.ReqProductDto;
 import com.example.shopPJT.product.dto.ReqUpdateProductInfoDto;
 import com.example.shopPJT.product.dto.ResProductDto;
 import com.example.shopPJT.product.service.ProductService;
+import com.example.shopPJT.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -22,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/product")
+@Tag(name = "상품 API")
 public class ProductController {
     private final ProductService productService;
     @Autowired
@@ -95,46 +99,6 @@ public class ProductController {
         }
     }
 
-
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "상품 추가", description = "2개 이미지 필수. 등록자 id는 jwt내에 존재하는 id로 사용")
-    public ResponseEntity<?> addProduct(@Valid @ModelAttribute ReqProductDto reqProductDto) throws IOException {
-        if(productService.addProduct(reqProductDto)) {
-            return ResponseEntity.ok().body("상품이 등록되었습니다.");
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PatchMapping ("/{productId}")
-    @Operation(summary = "상품 삭제처리", description = "자기 자신이 올린 이미지만 삭제처리 가능")
-    public ResponseEntity<?> offProduct(@PathVariable("productId") Long productId) {
-        productService.offProduct(productId);
-        return ResponseEntity.ok().body("상품이 삭제되었습니다.");
-    }
-
-    // 상품 게시글 정보 수정
-    @PostMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "상품 정보(이름, 가격, 이미지) 수정", description = "이 요청에 이미지 포함 시, '이미지 변경'으로 간주")
-    public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId, @Valid @ModelAttribute ReqUpdateProductInfoDto reqUpdateProductInfoDto) {
-        productService.updateProduct(productId, reqUpdateProductInfoDto);
-        return ResponseEntity.ok().body("상품 정보가 수정되었습니다.");
-    }
-
-    @PatchMapping("/up/{productId}/{quantity}")
-    @Operation(summary = "상품 재고 수량 추가", description = "해당 상품을 게시판 판매자만 요청 가능")
-    public ResponseEntity<?> increaseProductInven(@PathVariable("productId") Long productId, @PathVariable Integer quantity) {
-        productService.increaseInventory(productId, quantity);
-        return ResponseEntity.ok().body("상품 재고 수량이 추가되었습니다.");
-    }
-
-    @PatchMapping("/down/{productId}/{quantity}")
-    @Operation(summary = "상품 재고 수량 삭제", description = "해당 상품을 게시판 판매자만 요청 가능")
-    public ResponseEntity<?> decreaseProductInven(@PathVariable Long productId, @PathVariable Integer quantity) {
-        productService.decreaseInventory(productId, quantity);
-        return ResponseEntity.ok().body("상품 재고 수량이 삭제되었습니다.");
-    }
-
     @GetMapping("/image") // 스토리지에 저장된 실제 이미지 파일을 반환: 이미지 이름은 URL 쿼리 형식으로 입력받아야 한다.
     public ResponseEntity<Resource> getImageFile(@RequestParam("imageName") String imageName) {
         try {
@@ -146,5 +110,4 @@ public class ProductController {
             throw new ApplicationException(ApplicationError.IMAGE_LOAD_FAIL);
         }
     }
-
 }

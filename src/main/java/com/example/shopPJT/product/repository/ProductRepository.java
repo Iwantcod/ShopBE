@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -16,7 +17,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.id = :productId")
     Optional<Product> findByIdWithPessimisticLock(@Param("productId") Long productId);
 
-    @Modifying
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE) // 상품 식별자 리스트를 인자로 받고, 식별자 오름차순 순서대로 비관적 락을 획득한다.
+    @Query("SELECT p FROM Product p WHERE p.id IN :productIds ORDER BY p.id ASC")
+    List<Product> findByIdsWithPessimisticLock(List<Long> productIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Product p SET p.isDeleted = true WHERE p.id = :userId")
     void setAllProductDeleteTrueByUserId(@Param("userId") Long userId);
 

@@ -25,9 +25,8 @@ public class Order {
     private String pgPaymentKey; // pg사에서 발급받은 값을 저장할 컬럼
 
     @Column(nullable = false, updatable = false, columnDefinition = "CHAR(36)")
-    private UUID pgOrderId; // UUID 값 저장
+    private UUID pgOrderId; // UUID 값 저장: 자동 생성
 
-    @Column(nullable = false)
     private Integer amount; // 총 결제 금액
 
     @CreationTimestamp
@@ -41,24 +40,46 @@ public class Order {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private OrderMethod method; // 주문 방법
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus; // 배송 상태
 
     @Builder
-    public Order(User user, Integer amount, String address, String phone, OrderMethod method) {
+    public Order(User user, String address, String phone) {
         this.user = user;
-        this.amount = amount;
         this.address = address;
         this.phone = phone;
-        this.method = method;
         this.deliveryStatus = DeliveryStatus.PROCESSING;
     }
 
     @PrePersist // Insert 쿼리 호출 직전 엔티티의 pgOrderId가 비어있으면 UUID로 생성후 주입
     public void onPrePersist() {
         if(pgOrderId == null) pgOrderId = UUID.randomUUID();
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setPgPaymentKey(String pgPaymentKey) {
+        this.pgPaymentKey = pgPaymentKey;
+    }
+
+    public void setPgOrderId(UUID pgOrderId) {
+        this.pgOrderId = pgOrderId;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setDeliveryStatus(DeliveryStatus deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
     }
 }

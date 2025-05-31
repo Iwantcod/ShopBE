@@ -5,11 +5,14 @@ import com.example.shopPJT.product.entity.CategoryName;
 import com.example.shopPJT.product.repository.CategoryRepository;
 import com.example.shopPJT.productSpec.entity.*;
 import com.example.shopPJT.productSpec.repository.*;
+import com.example.shopPJT.user.entity.RoleType;
+import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.annotation.Rollback;
 
 @DataJpaTest
@@ -138,6 +141,5 @@ public class InitSettingScript {
             ssd.setManufacturer("ssdMfg" + i);
             storageSpecRepository.save(ssd);
         }
-
     }
 }

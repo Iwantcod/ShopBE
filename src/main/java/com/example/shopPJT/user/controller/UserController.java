@@ -8,6 +8,7 @@ import com.example.shopPJT.user.entity.RoleType;
 import com.example.shopPJT.user.service.UserService;
 import com.example.shopPJT.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
+@Tag(name = "회원 API")
 public class UserController {
     private final UserService userService;
     private final ProductService productService;

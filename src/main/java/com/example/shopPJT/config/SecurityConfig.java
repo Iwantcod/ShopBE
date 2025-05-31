@@ -99,7 +99,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((auth) ->
                         auth.requestMatchers("/api/auth/**", "/oauth2/**","/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Spring Security에서는 권한의 "ROLE_" 부분을 제외한 나머지 부분만 취급한다.
+                                .requestMatchers("/api/seller/**").hasAnyRole("ADMIN", "SELLER")
                                 .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2Login((oauth2) -> oauth2.loginPage("/auth/login")

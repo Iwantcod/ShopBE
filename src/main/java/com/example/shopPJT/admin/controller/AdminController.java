@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
-@Tag(name = "관리자 권한", description = "요청에 담긴 jwt의 내부 권한이 ADMIN인 경우에만 응답")
+@Tag(name = "관리자 API", description = "요청에 담긴 jwt의 내부 권한이 ADMIN인 경우에만 응답")
 public class AdminController {
     private final UserService userService;
     private final BusinessInfoService businessInfoService;

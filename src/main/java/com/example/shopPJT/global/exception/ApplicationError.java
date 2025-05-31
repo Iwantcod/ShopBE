@@ -32,6 +32,7 @@ public enum ApplicationError {
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니가 비었습니다."),
     CARTID_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니 상품을 찾을 수 없습니다."),
     CART_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "장바구니 수량은 1 이상이어야 합니다."),
+    PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "재고 수량이 부족합니다."),
 
 
     // 데이터베이스 및 스토리지 관련

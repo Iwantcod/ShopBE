@@ -49,8 +49,6 @@ public class ProductService {
 
     @Value("${app.storage-path}")
     private String storagePath;
-    @PersistenceContext
-    private EntityManager entityManager;
     @Autowired
     public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository,
                           ProductSpecServiceFactory productSpecServiceFactory) {
@@ -86,8 +84,6 @@ public class ProductService {
         }
         // 해당 회원(판매자)이 업로드한 모든 상품을 '삭제' 처리한다.
         productRepository.setAllProductDeleteTrueByUserId(userId);
-        entityManager.flush();
-        entityManager.clear();
     }
 
 
@@ -95,20 +91,17 @@ public class ProductService {
     public List<ResProductDto> getAllProductDesc(String categoryName, Integer startOffset) {
         // 프론트로부터 1,2,3,4... 의 값을 받는다. 이 값에 10을 곱한 값이 조회 시작지점이다.
 
-        Optional<Category> category = categoryRepository.findByName(categoryName);
+        Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
-        if(category.isEmpty()) {
-            throw new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND);
-        }
         if(startOffset == null) {
             startOffset = 0;
         }
 
         int pageSize = 10;
         Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
-        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
+        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
         if(products.isEmpty()){
-            log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
 
@@ -125,16 +118,12 @@ public class ProductService {
             startOffset = 0;
         }
 
-        Optional<Category> category = categoryRepository.findByName(categoryName);
-        // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
-        if(category.isEmpty()) {
-            throw new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND);
-        }
+        Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("volume").descending());
-        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
+        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
         if(products.isEmpty()){
-            log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
         Slice<ResProductDto> dtoPage = products.map(this::toDto);
@@ -145,11 +134,9 @@ public class ProductService {
     @Transactional(readOnly = true) // 두번째 인자의 값에 따라 분기하여 가격 순 내림차순(true)/오름차순(false) 조회 결과를 페이징하여 응답
     public List<ResProductDto> getAllProductPrice(String categoryName, Integer startOffset, boolean isDescending) {
         int pageSize = 10;
-        Optional<Category> category = categoryRepository.findByName(categoryName);
+        Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
-        if(category.isEmpty()) {
-            throw new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND);
-        }
         if(startOffset == null) {
             startOffset = 0;
         }
@@ -163,7 +150,7 @@ public class ProductService {
             pageable = PageRequest.of(startOffset, pageSize, Sort.by("price").ascending());
         }
 
-        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.get().getId());
+        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
         if(products.isEmpty()){
             log.error("GET Product FAIL: Cannot find Product.");
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
@@ -174,13 +161,9 @@ public class ProductService {
 
     @Transactional(readOnly = true) // 식별자로 조회
     public ResProductDto getProductById(Long productId) {
-        Optional<Product> product = productRepository.findById(productId);
-        if(product.isPresent()){
-            return toDto(product.get());
-        } else {
-            log.error("GET Product FAIL: Cannot find Product.");
-            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
-        }
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
+        return toDto(product);
     }
 
     @Transactional(readOnly = true) // 특정 판매자가 게시한 상품을 모두 조회
@@ -250,25 +233,15 @@ public class ProductService {
     // 상품 정보 추가
     @Transactional
     public boolean addProduct(ReqProductDto reqProductDto) throws IOException {
-        String userRole = AuthUtil.getCurrentUserAuthority();
         Long userId = AuthUtil.getSecurityContextUserId(); // 요청에 포함된 jwt의 유저 식별자 필드 값을 userId로 사용
         if(userId == null) {
             throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
         }
-        if(userRole.equals("ROLE_USER")) {
-            // 요청에 포함된 jwt의 권한 정보가 '일반 사용자'면 해당 요청 수행 불가
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
 
-        Optional<User> user = userRepository.findById(userId);
-        if(user.isEmpty() || reqProductDto.getLogicalFK() == null || reqProductDto.getCategoryId() == null) {
-            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
-        }
-
-        Optional<Category> category = categoryRepository.findById(reqProductDto.getCategoryId());
-        if(category.isEmpty()){
-            throw new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND);
-        }
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.USER_NOT_FOUND));
+        Category category = categoryRepository.findById(reqProductDto.getCategoryId()).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
 
         String productImageUrl = uploadImage(reqProductDto.getProductImage());
         String descriptionImageUrl = uploadImage(reqProductDto.getDescriptionImage());
@@ -282,17 +255,17 @@ public class ProductService {
         }
 
         // 입력받은 '모델 정보'가 시스템(데이터베이스)에 존재하지 않는 경우 false
-        if(!isExistProduct(reqProductDto.getLogicalFK(), category.get().getName())) {
+        if(!isExistProduct(reqProductDto.getLogicalFK(), category.getName())) {
             throw new ApplicationException(ApplicationError.PRODUCTSPEC_NOT_FOUND);
         }
 
         Product product = new Product();
         product.setName(reqProductDto.getName());
-        product.setCategory(category.get());
+        product.setCategory(category);
         product.setLogicalFK(reqProductDto.getLogicalFK());
         product.setPrice(reqProductDto.getPrice());
         product.setInventory(reqProductDto.getInventory());
-        product.setUser(user.get());
+        product.setUser(user);
         product.setDescriptionImageUrl(descriptionImageUrl);
         product.setProductImageUrl(productImageUrl);
         productRepository.save(product);
@@ -316,24 +289,23 @@ public class ProductService {
     @Transactional // 상품 정보 수정: 이미지 존재하면 변경하는 것으로 간주
     public void updateProduct(Long productId, ReqUpdateProductInfoDto reqUpdateProductInfoDto) {
         Long userId = AuthUtil.getSecurityContextUserId();
-        Optional<Product> product = productRepository.findById(productId);
         if(userId == null) {
             throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
         }
-        if(product.isEmpty()) {
-            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
-        }
-        if(!product.get().getUser().getId().equals(userId)) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
+        if(!product.getUser().getId().equals(userId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
         if(reqUpdateProductInfoDto.getName() != null) {
-            product.get().setName(reqUpdateProductInfoDto.getName());
+            product.setName(reqUpdateProductInfoDto.getName());
         }
 
         // 상품 업데이트 요청에 대표 이미지 혹은 상세페이지 이미지가 포함된 경우, 이미지 '변경' 요청으로 간주.
         if(reqUpdateProductInfoDto.getProductImage() != null) {
             // 기존 상품 대표 이미지 제거
-            if(!removeImage(product.get().getProductImageUrl())) {
+            if(!removeImage(product.getProductImageUrl())) {
                 throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_REMOVE_FAIL); // 추후 비동기 작업으로 변경할 것
             }
 
@@ -343,7 +315,7 @@ public class ProductService {
                 if(newProductImageUrl == null) {
                     throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_UPLOAD_FAIL); // 추후 비동기 작업으로 변경할 것
                 }
-                product.get().setProductImageUrl(newProductImageUrl);
+                product.setProductImageUrl(newProductImageUrl);
             } catch (IOException e){
                 throw new ApplicationException(ApplicationError.PRODUCT_IMAGE_UPLOAD_FAIL);
             }
@@ -351,7 +323,7 @@ public class ProductService {
         }
         if(reqUpdateProductInfoDto.getDescriptionImage() != null) {
             // 기존 상품 상세페이지 이미지 제거
-            if(!removeImage(product.get().getDescriptionImageUrl())) {
+            if(!removeImage(product.getDescriptionImageUrl())) {
                 throw new ApplicationException(ApplicationError.PRODUCT_DESCRIPTION_IMAGE_REMOVE_FAIL);
             }
             // 새 상품 상세페이지 이미지 업로드
@@ -360,7 +332,7 @@ public class ProductService {
                 if(newDescriptionImageUrl == null) {
                     throw new ApplicationException(ApplicationError.PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL);
                 }
-                product.get().setDescriptionImageUrl(newDescriptionImageUrl);
+                product.setDescriptionImageUrl(newDescriptionImageUrl);
             } catch (IOException e) {
                 throw new ApplicationException(ApplicationError.PRODUCT_DESCRIPTION_IMAGE_UPLOAD_FAIL);
             }
@@ -368,63 +340,47 @@ public class ProductService {
         }
 
         if(reqUpdateProductInfoDto.getPrice() > 0) {
-            product.get().setPrice(reqUpdateProductInfoDto.getPrice());
+            product.setPrice(reqUpdateProductInfoDto.getPrice());
         }
 
-        productRepository.save(product.get());
+        productRepository.save(product);
     }
 
     @Transactional
     public void offProduct(Long productId) {
         Long userId = AuthUtil.getSecurityContextUserId();
-        Optional<Product> product = productRepository.findById(productId);
-        if(product.isEmpty()) {
-            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
-        }
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
         // jwt의 회원 식별자와 상품 게시 회원의 식별자가 일치하지 않으면 삭제 처리 불가
-        if(!product.get().getUser().getId().equals(userId)) {
+        if(!product.getUser().getId().equals(userId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
-        product.get().setDeleted(true);
+        product.setDeleted(true);
     }
 
-    @Transactional // 재고 증가: 비관적 락(쓰기 락)
-    public void increaseInventory(Long productId, Integer quantity) {
+    @Transactional // 재고 증가(isIncrement: true) 및 재고 감소(isIncrement: false) // isOrderRequest: 주문 요청인지에 대한 여부
+    public void modifyInventory(Long productId, Integer quantity, Boolean isIncrement, Boolean isOrderRequest) {
         Long userId = AuthUtil.getSecurityContextUserId();
-        Optional<Product> product = productRepository.findByIdWithPessimisticLock(productId);
-        if(product.isEmpty()) {
-            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
-        }
-        if(!product.get().getUser().getId().equals(userId)) {
+        Product product = productRepository.findByIdWithPessimisticLock(productId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
+        if(!isOrderRequest && !product.getUser().getId().equals(userId)) {
+            // 주문 요청이 아니라 '재고 수정' 요청인 경우 해당 상품에 대한 소유권을 검증한다.
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
-        int prev = product.get().getInventory();
-        product.get().setInventory(prev + quantity);
-    }
+        int prev = product.getInventory();
 
-    @Transactional // 재고 감소: 비관적 락(쓰기 락)
-    public void decreaseInventory(Long productId, Integer quantity) {
-        Long userId = AuthUtil.getSecurityContextUserId();
-        Optional<Product> product = productRepository.findByIdWithPessimisticLock(productId);
-        if(product.isEmpty()) {
-            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
+        if(isIncrement) {
+            // 재고 증가
+            product.setInventory(prev + quantity);
+        } else {
+            // 재고 감소
+            if(prev - quantity < 0) {
+                // 재고를 감소시켰을 때 음수가 나온다면 올바르지 않은 요청
+                throw new ApplicationException(ApplicationError.PRODUCT_QUANTITY_INVALID);
+            }
+            product.setInventory(prev - quantity);
         }
-        if(!product.get().getUser().getId().equals(userId)) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
-
-        int prev = product.get().getInventory();
-        if(prev - quantity < 0) {
-            // 재고를 감소시켰을 때 음수가 나온다면 올바르지 않은 요청
-            throw new ApplicationException(ApplicationError.PRODUCT_QUANTITY_INVALID);
-        }
-        try {
-            Thread.sleep(10000); // 10초 대기
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        product.get().setInventory(prev - quantity);
     }
 
 

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/spec")
-@Tag(name = "모델 스펙 정보 조회", description = "카테고리 이름은 반드시 소문자로 작성")
+@Tag(name = "모델 스펙 정보 API", description = "카테고리 이름은 반드시 소문자로 작성")
 public class ProductSpecController {
     private final ProductSpecServiceFactory productSpecServiceFactory;
     @Autowired
