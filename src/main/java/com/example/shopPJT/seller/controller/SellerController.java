@@ -24,7 +24,7 @@ public class SellerController {
     }
 
     // 상품 추가
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/product",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "상품 추가", description = "2개 이미지 필수. 등록자 id는 jwt내에 존재하는 id로 사용")
     public ResponseEntity<?> addProduct(@Valid @ModelAttribute ReqProductDto reqProductDto) throws IOException {
         if(productService.addProduct(reqProductDto)) {
@@ -35,7 +35,7 @@ public class SellerController {
     }
 
     // 상품 삭제
-    @PatchMapping("/{productId}")
+    @PatchMapping("/product/{productId}")
     @Operation(summary = "상품 삭제처리", description = "자기 자신이 올린 이미지만 삭제처리 가능")
     public ResponseEntity<?> offProduct(@PathVariable("productId") Long productId) {
         productService.offProduct(productId);
@@ -43,7 +43,7 @@ public class SellerController {
     }
 
     // 상품 게시글 정보 수정
-    @PostMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/product-update/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "상품 정보(이름, 가격, 이미지) 수정", description = "이 요청에 이미지 포함 시, '이미지 변경'으로 간주")
     public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId, @Valid @ModelAttribute ReqUpdateProductInfoDto reqUpdateProductInfoDto) {
         productService.updateProduct(productId, reqUpdateProductInfoDto);
@@ -51,18 +51,18 @@ public class SellerController {
     }
 
     // 상품 재고 증가
-    @PatchMapping("/up/{productId}/{quantity}")
+    @PatchMapping("/inven-up/{productId}/{quantity}")
     @Operation(summary = "상품 재고 수량 추가", description = "해당 상품을 게시판 판매자만 요청 가능")
     public ResponseEntity<?> increaseProductInven(@PathVariable("productId") Long productId, @PathVariable Integer quantity) {
-        productService.modifyInventory(productId, quantity, Boolean.TRUE, Boolean.FALSE);
+        productService.modifyInventory(productId, quantity, Boolean.TRUE);
         return ResponseEntity.ok().body("상품 재고 수량이 추가되었습니다.");
     }
 
     // 상품 재고 차감
-    @PatchMapping("/down/{productId}/{quantity}")
+    @PatchMapping("/inven-down/{productId}/{quantity}")
     @Operation(summary = "상품 재고 수량 삭제", description = "해당 상품을 게시판 판매자만 요청 가능")
     public ResponseEntity<?> decreaseProductInven(@PathVariable Long productId, @PathVariable Integer quantity) {
-        productService.modifyInventory(productId, quantity, Boolean.FALSE, Boolean.FALSE);
+        productService.modifyInventory(productId, quantity, Boolean.FALSE);
         return ResponseEntity.ok().body("상품 재고 수량이 삭제되었습니다.");
     }
 }

@@ -33,6 +33,10 @@ public enum ApplicationError {
     CARTID_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장바구니 상품을 찾을 수 없습니다."),
     CART_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "장바구니 수량은 1 이상이어야 합니다."),
     PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "재고 수량이 부족합니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
+    ORDER_REQUEST_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 주문 요청입니다."),
+    ORDER_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "완료되지 않은 주문 정보는 삭제할 수 없습니다."),
+    ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "준비 중인 주문만 취소할 수 있습니다."),
 
 
     // 데이터베이스 및 스토리지 관련

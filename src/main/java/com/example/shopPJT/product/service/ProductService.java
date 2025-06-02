@@ -359,11 +359,11 @@ public class ProductService {
     }
 
     @Transactional // 재고 증가(isIncrement: true) 및 재고 감소(isIncrement: false) // isOrderRequest: 주문 요청인지에 대한 여부
-    public void modifyInventory(Long productId, Integer quantity, Boolean isIncrement, Boolean isOrderRequest) {
+    public void modifyInventory(Long productId, Integer quantity, Boolean isIncrement) {
         Long userId = AuthUtil.getSecurityContextUserId();
         Product product = productRepository.findByIdWithPessimisticLock(productId).orElseThrow(() ->
                 new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
-        if(!isOrderRequest && !product.getUser().getId().equals(userId)) {
+        if(!product.getUser().getId().equals(userId)) {
             // 주문 요청이 아니라 '재고 수정' 요청인 경우 해당 상품에 대한 소유권을 검증한다.
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }

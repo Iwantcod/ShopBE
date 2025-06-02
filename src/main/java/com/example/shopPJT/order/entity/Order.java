@@ -30,6 +30,7 @@ public class Order {
     private Integer amount; // 총 결제 금액
 
     @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime requested_at; // 생성 일자 및 시각
 
     @Column(nullable = false)
@@ -42,6 +43,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus; // 배송 상태
 
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean isDeleted = false;
+
     @Builder
     public Order(User user, String address, String phone) {
         this.user = user;
@@ -53,6 +57,7 @@ public class Order {
     @PrePersist // Insert 쿼리 호출 직전 엔티티의 pgOrderId가 비어있으면 UUID로 생성후 주입
     public void onPrePersist() {
         if(pgOrderId == null) pgOrderId = UUID.randomUUID();
+        if(requested_at == null) requested_at = LocalDateTime.now(); // 주문 요청 일자 정보 생성 후 삽입
     }
 
     public void setUser(User user) {
@@ -81,5 +86,9 @@ public class Order {
 
     public void setDeliveryStatus(DeliveryStatus deliveryStatus) {
         this.deliveryStatus = deliveryStatus;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
     }
 }

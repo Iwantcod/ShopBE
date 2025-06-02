@@ -100,7 +100,7 @@ public class ProductController {
     }
 
     @GetMapping("/image") // 스토리지에 저장된 실제 이미지 파일을 반환: 이미지 이름은 URL 쿼리 형식으로 입력받아야 한다.
-    public ResponseEntity<Resource> getImageFile(@RequestParam("imageName") String imageName) {
+    public ResponseEntity<Resource> getImageFile(@RequestParam("name") String imageName) {
         try {
             Resource image = productService.getImageFile(imageName);
             Path path = Paths.get(image.getURI());
