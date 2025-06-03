@@ -11,4 +11,5 @@ public class MemorySpecDto extends ModelNameDto {
     private String groups;
     private Integer cl;
     private Integer volume;
+    private Integer speed;
 }

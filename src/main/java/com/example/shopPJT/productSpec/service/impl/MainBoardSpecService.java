@@ -95,7 +95,6 @@ public class MainBoardSpecService implements ProductSpecServiceStrategy<MainBoar
                 .orElseThrow(() -> new ApplicationException(ApplicationError.PRODUCTSPEC_NOT_FOUND));
 
         if(specDto.getChipSetType() != null) mainBoardSpec.setChipSetType(specDto.getChipSetType());
-        if(specDto.getGroups() != null) mainBoardSpec.setGroups(specDto.getGroups());
         if(specDto.getModelName() != null) mainBoardSpec.setModelName(specDto.getModelName());
         if(specDto.getCpuSocket() != null) mainBoardSpec.setCpuSocket(specDto.getCpuSocket());
         if(specDto.getMosFet() != null) mainBoardSpec.setMosFet(specDto.getMosFet());

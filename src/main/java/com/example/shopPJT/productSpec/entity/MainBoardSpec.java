@@ -14,18 +14,12 @@ public class MainBoardSpec extends Spec {
     @Column(nullable = false)
     private String chipSetType;
     @Column(nullable = false)
-    private String groups;
-    @Column(nullable = false)
     private String cpuSocket;
     @Column(nullable = false)
     private Integer mosFet;
 
     public void setChipSetType(String chipSetType) {
         this.chipSetType = chipSetType;
-    }
-
-    public void setGroups(String groups) {
-        this.groups = groups;
     }
 
     public void setCpuSocket(String cpuSocket) {

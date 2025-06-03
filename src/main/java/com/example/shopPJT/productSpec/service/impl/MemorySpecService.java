@@ -99,6 +99,7 @@ public class MemorySpecService implements ProductSpecServiceStrategy<MemorySpecD
         if(specDto.getGroups() != null) memorySpec.setGroups(specDto.getGroups());
         if(specDto.getVolume() != null) memorySpec.setVolume(specDto.getVolume());
         if(specDto.getManufacturer() != null) memorySpec.setManufacturer(specDto.getManufacturer());
+        if(specDto.getSpeed() != null) memorySpec.setSpeed(specDto.getSpeed());
     }
 
     @Override

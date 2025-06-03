@@ -17,8 +17,6 @@ public class CoolerSpec extends Spec {
     private Integer fanSpeed;
     @Column(nullable = false)
     private Integer noise;
-    @Column(nullable = false)
-    private String groups; // 쿨러 분류
 
     public void setSize(Integer size) {
         this.size = size;
@@ -30,9 +28,5 @@ public class CoolerSpec extends Spec {
 
     public void setNoise(Integer noise) {
         this.noise = noise;
-    }
-
-    public void setGroups(String groups) {
-        this.groups = groups;
     }
 }

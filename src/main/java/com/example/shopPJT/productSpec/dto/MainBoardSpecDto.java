@@ -9,7 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MainBoardSpecDto extends ModelNameDto {
     private String chipSetType;
-    private String groups;
     private String cpuSocket;
     private Integer mosFet;
 }

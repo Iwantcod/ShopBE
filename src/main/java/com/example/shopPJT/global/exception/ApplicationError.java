@@ -19,6 +19,7 @@ public enum ApplicationError {
     REFRESH_TOKEN_UPDATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류로 인해 Refresh Token 정보를 갱신하지 못했습니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_PHONE(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),
+    WRONG_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
 
     // 데이터 관련
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보를 찾을 수 없습니다."),

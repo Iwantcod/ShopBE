@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class ReqUpdateProductInfoDto {
     private String name;
-    private int price;
+    private Integer price;
     private MultipartFile productImage; // 실제 이미지 파일(바이트코드)을 받는다.
     private MultipartFile descriptionImage; // 실제 이미지 파일(바이트코드)을 받는다.
 }

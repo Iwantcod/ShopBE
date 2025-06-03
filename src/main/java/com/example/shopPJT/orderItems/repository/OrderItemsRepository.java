@@ -1,7 +1,7 @@
-package com.example.shopPJT.orderItem.repository;
+package com.example.shopPJT.orderItems.repository;
 
-import com.example.shopPJT.order.entity.Order;
-import com.example.shopPJT.orderItem.entity.OrderItems;
+import com.example.shopPJT.orderItems.dto.ResOrderItemsDto;
+import com.example.shopPJT.orderItems.entity.OrderItems;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +16,12 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Long> {
 
     @Query("SELECT o FROM OrderItems o WHERE o.order.id = :orderId")
     List<OrderItems> findAllByOrderId(@Param("orderId") Long orderId);
+
+    @Query("""
+            SELECT new com.example.shopPJT.orderItems.dto.ResOrderItemsDto
+                    (p.id, p.name, p.user.id, p.productImageUrl, o.quantity)
+            FROM OrderItems o JOIN o.product p
+            WHERE o.order.id = :orderId
+        """)
+    List<ResOrderItemsDto> findOrderProductByOrderId(@Param("orderId") Long orderId);
 }

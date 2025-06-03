@@ -11,5 +11,4 @@ public class CoolerSpecDto extends ModelNameDto {
     private Integer size;
     private Integer fanSpeed;
     private Integer noise;
-    private String groups;
 }

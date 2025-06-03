@@ -23,11 +23,11 @@ public class Product {
     private Long logicalFK;
 
     @Column(nullable = false)
-    private int price;
+    private Integer price;
 
     @Column(nullable = false)
 //    @PositiveOrZero
-    private int inventory;
+    private Integer inventory;
 
     @CreationTimestamp
     private LocalDate createdAt;
@@ -52,11 +52,11 @@ public class Product {
         this.logicalFK = logicalFK;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
-    public void setInventory(int inventory) {
+    public void setInventory(Integer inventory) {
         this.inventory = inventory;
     }
 

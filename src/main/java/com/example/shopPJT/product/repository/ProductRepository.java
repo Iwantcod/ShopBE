@@ -1,6 +1,5 @@
 package com.example.shopPJT.product.repository;
 
-import com.example.shopPJT.product.dto.ProductHeadDto;
 import com.example.shopPJT.product.entity.Product;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;

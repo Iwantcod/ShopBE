@@ -92,7 +92,6 @@ public class CoolerSpecService implements ProductSpecServiceStrategy<CoolerSpecD
 
         if(specDto.getSize() != null) coolerSpec.setSize(specDto.getSize());
         if(specDto.getNoise() != null) coolerSpec.setNoise(specDto.getNoise());
-        if(specDto.getGroups() != null) coolerSpec.setGroups(specDto.getGroups());
         if(specDto.getManufacturer() != null) coolerSpec.setManufacturer(specDto.getManufacturer());
         if(specDto.getModelName() != null) coolerSpec.setModelName(specDto.getModelName());
         if(specDto.getFanSpeed() != null) coolerSpec.setFanSpeed(specDto.getFanSpeed());

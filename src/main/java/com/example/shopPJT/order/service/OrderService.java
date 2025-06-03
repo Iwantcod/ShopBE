@@ -6,8 +6,8 @@ import com.example.shopPJT.order.dto.*;
 import com.example.shopPJT.order.entity.DeliveryStatus;
 import com.example.shopPJT.order.entity.Order;
 import com.example.shopPJT.order.repository.OrderRepository;
-import com.example.shopPJT.orderItem.entity.OrderItems;
-import com.example.shopPJT.orderItem.repository.OrderItemsRepository;
+import com.example.shopPJT.orderItems.entity.OrderItems;
+import com.example.shopPJT.orderItems.repository.OrderItemsRepository;
 import com.example.shopPJT.product.entity.Product;
 import com.example.shopPJT.product.repository.ProductRepository;
 import com.example.shopPJT.user.entity.User;
@@ -16,7 +16,6 @@ import com.example.shopPJT.util.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

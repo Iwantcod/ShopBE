@@ -1,4 +1,4 @@
-package com.example.shopPJT.orderItem.entity;
+package com.example.shopPJT.orderItems.entity;
 
 import com.example.shopPJT.order.entity.Order;
 import com.example.shopPJT.product.entity.Product;

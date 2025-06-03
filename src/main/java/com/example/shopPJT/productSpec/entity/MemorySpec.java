@@ -17,6 +17,8 @@ public class MemorySpec extends Spec {
     private Integer cl;
     @Column(nullable = false)
     private Integer volume; // 메모리 크기(용량)
+    @Column(nullable = false)
+    private Integer speed; // 메모리 속도
 
     public void setGroups(String groups) {
         this.groups = groups;
@@ -28,5 +30,9 @@ public class MemorySpec extends Spec {
 
     public void setVolume(Integer volume) {
         this.volume = volume;
+    }
+
+    public void setSpeed(Integer speed) {
+        this.speed = speed;
     }
 }
