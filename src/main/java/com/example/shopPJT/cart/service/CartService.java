@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -35,11 +34,8 @@ public class CartService {
         this.productRepository = productRepository;
     }
 
-
-
-    @Async // 장바구니에 상품 추가
-    @Transactional
-    public String addCart(ReqCartDto reqCartDto) {
+    @Transactional // 장바구니 추가
+    public void addCart(ReqCartDto reqCartDto) {
         Long userId = AuthUtil.getSecurityContextUserId();
         if(userId == null) {
             throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
@@ -50,7 +46,7 @@ public class CartService {
             // 이미 해당 유저의 장바구니에 해당 상품 정보가 존재하는 경우, 요소를 새로 추가하지 않고 '개수' 정보만 증가
             Integer prevQuantity = existCart.get().getQuantity();
             existCart.get().setQuantity(prevQuantity + reqCartDto.getQuantity()); // 트랜잭션 커밋 시점에서 더티체킹하여 변경사항 반영된다.
-            return "장바구니에 상품이 추가되었습니다.";
+            return;
         }
 
         User user = userRepository.findById(userId).orElseThrow(()
@@ -64,14 +60,16 @@ public class CartService {
         cart.setProduct(product);
         cart.setQuantity(reqCartDto.getQuantity());
         cartRepository.save(cart);
-        return "장바구니에 상품이 추가되었습니다.";
+        return;
     }
 
-    @Async
-    @Transactional
+    @Transactional // 장바구니 업데이트
     public void updateCart(Long cartId, Boolean isUp) {
+        if(cartId == null) {
+            throw new ApplicationException(ApplicationError.CARTID_NOT_FOUND);
+        }
         Cart cart = cartRepository.findById(cartId).orElseThrow(() ->
-                new ApplicationException(ApplicationError.CARTID_NOT_FOUND));
+                new ApplicationException(ApplicationError.CART_NOT_FOUND));
         Integer prevQuantity = cart.getQuantity();
 
         if(isUp) {
@@ -94,7 +92,7 @@ public class CartService {
         if(cartId == null) {
             throw new ApplicationException(ApplicationError.CARTID_NOT_FOUND);
         }
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ApplicationException(ApplicationError.CARTID_NOT_FOUND));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ApplicationException(ApplicationError.CART_NOT_FOUND));
         if(!cart.getUser().getId().equals(userId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }

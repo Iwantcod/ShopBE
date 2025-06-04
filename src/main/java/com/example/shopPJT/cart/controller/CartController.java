@@ -26,8 +26,9 @@ public class CartController {
 
     @PostMapping("/add")
     @Operation(summary = "장바구니 상품 추가")
-    public ResponseEntity<String> addCart(@Valid @RequestBody ReqCartDto reqCartDto) {
-        return ResponseEntity.ok(cartService.addCart(reqCartDto));
+    public ResponseEntity<?> addCart(@Valid @RequestBody ReqCartDto reqCartDto) {
+        cartService.addCart(reqCartDto);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/my")
@@ -52,6 +53,6 @@ public class CartController {
     @DeleteMapping("/{cartId}") // 장바구니 삭제
     public ResponseEntity<?> deleteCart(@PathVariable Long cartId) {
         cartService.deleteCart(cartId);
-        return ResponseEntity.ok().body("해당 장바구니 항목이 삭제되었습니다.");
+        return ResponseEntity.ok().build();
     }
 }
