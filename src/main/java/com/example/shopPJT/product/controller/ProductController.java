@@ -100,6 +100,7 @@ public class ProductController {
     }
 
     @GetMapping("/image") // 스토리지에 저장된 실제 이미지 파일을 반환: 이미지 이름은 URL 쿼리 형식으로 입력받아야 한다.
+    @Operation(summary = "실제 이미지 파일 반환", description = "'file'이라는 URI 변수에 이미지 키(확장자 포함한 이름)를 포함해주세요.")
     public ResponseEntity<Resource> getImageFile(@RequestParam("name") String imageName) {
         try {
             Resource image = productService.getImageFile(imageName);

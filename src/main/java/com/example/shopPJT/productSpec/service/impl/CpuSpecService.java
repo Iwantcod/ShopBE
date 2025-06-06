@@ -95,6 +95,7 @@ public class CpuSpecService implements ProductSpecServiceStrategy<CpuSpecDto> {
         if(specDto.getModelName() != null) cpuSpec.setModelName(specDto.getModelName());
         if(specDto.getThreadNum() != null) cpuSpec.setThreadNum(specDto.getThreadNum());
         if(specDto.getL3cache() != null) cpuSpec.setL3Cache(specDto.getL3cache());
+        if(specDto.getProcessSize() != null) cpuSpec.setProcessSize(specDto.getProcessSize());
     }
 
     @Override

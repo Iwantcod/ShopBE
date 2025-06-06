@@ -15,4 +15,5 @@ public class GraphicSpecDto extends ModelNameDto {
     private Integer coreClock;
     private Integer boostClock;
     private Integer vram;
+    private String groups;
 }

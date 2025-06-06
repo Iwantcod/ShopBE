@@ -8,8 +8,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CpuSpecDto extends ModelNameDto {
-    private Integer coreNum;
-    private Integer threadNum;
+    private String coreNum;
+    private String threadNum;
     private Integer l3cache;
     private Integer boostClock;
+    private Integer processSize;
 }

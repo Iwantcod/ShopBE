@@ -24,6 +24,7 @@ public enum ApplicationError {
     // 데이터 관련
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보를 찾을 수 없습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품 정보를 찾을 수 없습니다."),
+    PRODUCTID_NOT_FOUND(HttpStatus.NOT_FOUND, "상품 식별자가 존재하지 않습니다."),
     PRODUCT_DELETED(HttpStatus.NOT_FOUND, "삭제된 상품입니다."),
     BUSINESSINFO_NOT_FOUND(HttpStatus.NOT_FOUND, "사업자 등록정보를 찾을 수 없습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."),

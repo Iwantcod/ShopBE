@@ -94,6 +94,7 @@ public class PowerSpecService implements ProductSpecServiceStrategy<PowerSpecDto
         if(specDto.getModelName() != null) powerSpec.setModelName(specDto.getModelName());
         if(specDto.getRatedOutputPower() != null) powerSpec.setRatedOutputPower(specDto.getRatedOutputPower());
         if(specDto.getManufacturer() != null) powerSpec.setManufacturer(specDto.getManufacturer());
+        if(specDto.getPlusGrades() != null) powerSpec.setPlusGrades(specDto.getPlusGrades());
     }
 
     @Override

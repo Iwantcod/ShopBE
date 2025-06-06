@@ -11,20 +11,21 @@ import lombok.Getter;
 public class CpuSpec extends Spec {
     @Id @GeneratedValue @Column(name = "CPUSPEC_ID")
     private Long id;
-    @Column(nullable = false)
-    private Integer coreNum;
-    @Column(nullable = false)
-    private Integer threadNum;
-    @Column(nullable = false)
+    private String coreNum;
+    private String threadNum;
     private Integer l3Cache;
-    @Column(nullable = false)
     private Integer boostClock;
+    private Integer processSize;
 
-    public void setCoreNum(Integer coreNum) {
+    public void setCoreNum(String coreNum) {
         this.coreNum = coreNum;
     }
 
-    public void setThreadNum(Integer threadNum) {
+    public void setProcessSize(Integer processSize) {
+        this.processSize = processSize;
+    }
+
+    public void setThreadNum(String threadNum) {
         this.threadNum = threadNum;
     }
 

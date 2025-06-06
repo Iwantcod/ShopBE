@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CoolerSpecDto extends ModelNameDto {
-    private Integer size;
+    private String groups;
     private Integer fanSpeed;
     private Integer noise;
 }

@@ -106,7 +106,6 @@ public class ProductService {
         }
 
         Slice<ResProductDto> dtoPage = products.map(this::toDto);
-        log.info("GET Post SUCCESS.");
         return dtoPage.getContent(); // Page 객체의 메타데이터 없이 본문 데이터만 반환
     }
 

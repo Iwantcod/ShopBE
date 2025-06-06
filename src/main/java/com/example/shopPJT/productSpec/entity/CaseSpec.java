@@ -11,16 +11,14 @@ import lombok.Getter;
 public class CaseSpec extends Spec {
     @Id @GeneratedValue @Column(name = "CASESPEC_ID")
     private Long id;
-    @Column(nullable = false)
-    private Integer size;
-    @Column(nullable = false)
-    private Integer innerSpace;
+    private String groups;
+    private String innerSpace;
 
-    public void setSize(Integer size) {
-        this.size = size;
+    public void setGroups(String groups) {
+        this.groups = groups;
     }
 
-    public void setInnerSpace(Integer innerSpace) {
+    public void setInnerSpace(String innerSpace) {
         this.innerSpace = innerSpace;
     }
 }

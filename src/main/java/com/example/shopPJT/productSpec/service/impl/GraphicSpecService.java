@@ -99,6 +99,7 @@ public class GraphicSpecService implements ProductSpecServiceStrategy<GraphicSpe
         if(specDto.getManufacturer() != null) graphicSpec.setManufacturer(specDto.getManufacturer());
         if(specDto.getModelName() != null) graphicSpec.setModelName(specDto.getModelName());
         if(specDto.getChipSetManufacturer() != null) graphicSpec.setChipSetManufacturer(specDto.getChipSetManufacturer());
+        if(specDto.getGroups() != null) graphicSpec.setGroups(specDto.getGroups());
     }
 
     @Override

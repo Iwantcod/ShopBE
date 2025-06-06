@@ -11,4 +11,6 @@ public class MainBoardSpecDto extends ModelNameDto {
     private String chipSetType;
     private String cpuSocket;
     private Integer mosFet;
+    private String groups;
+    private String modelGroups;
 }

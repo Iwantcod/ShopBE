@@ -99,6 +99,8 @@ public class MainBoardSpecService implements ProductSpecServiceStrategy<MainBoar
         if(specDto.getCpuSocket() != null) mainBoardSpec.setCpuSocket(specDto.getCpuSocket());
         if(specDto.getMosFet() != null) mainBoardSpec.setMosFet(specDto.getMosFet());
         if(specDto.getManufacturer() != null) mainBoardSpec.setManufacturer(specDto.getManufacturer());
+        if(specDto.getGroups() != null) mainBoardSpec.setGroups(specDto.getGroups());
+        if(specDto.getModelGroups() != null) mainBoardSpec.setModelGroups(specDto.getModelGroups());
     }
 
     @Override

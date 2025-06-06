@@ -184,6 +184,7 @@ public class UserService {
         }
         if(updateUserDto.getName() != null) {
             user.get().setName(updateUserDto.getName());
+
         }
         if(updateUserDto.getAddress() != null) {
             user.get().setAddress(updateUserDto.getAddress());

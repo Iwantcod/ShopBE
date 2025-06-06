@@ -11,13 +11,9 @@ import lombok.Getter;
 public class MemorySpec extends Spec {
     @Id @GeneratedValue @Column(name = "MEMORYSPEC_ID")
     private Long id;
-    @Column(nullable = false)
     private String groups; // 메모리 분류
-    @Column(nullable = false)
     private Integer cl;
-    @Column(nullable = false)
     private Integer volume; // 메모리 크기(용량)
-    @Column(nullable = false)
     private Integer speed; // 메모리 속도
 
     public void setGroups(String groups) {

@@ -3,10 +3,12 @@ package com.example.shopPJT.review.service;
 import com.example.shopPJT.global.exception.ApplicationError;
 import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.orderItems.repository.OrderItemsRepository;
+import com.example.shopPJT.product.dto.ResProductDto;
 import com.example.shopPJT.product.entity.Product;
 import com.example.shopPJT.product.repository.ProductRepository;
 import com.example.shopPJT.review.dto.ReqReviewDto;
 import com.example.shopPJT.review.dto.ReqUpdateReviewDto;
+import com.example.shopPJT.review.dto.ResReviewDto;
 import com.example.shopPJT.review.entity.Review;
 import com.example.shopPJT.review.repository.ReviewRepository;
 import com.example.shopPJT.user.entity.User;
@@ -14,8 +16,14 @@ import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.util.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -76,7 +84,38 @@ public class ReviewService {
             // 일반 리뷰인 경우
             review.setMaterializedPath(String.valueOf(review.getId())); // 리뷰 경로 저장
         }
+    }
 
+    private ResReviewDto toDto(Review review) {
+        ResReviewDto resReviewDto = new ResReviewDto();
+        resReviewDto.setReviewId(review.getId());
+        resReviewDto.setCreatedAt(review.getCreatedAt());
+        resReviewDto.setUserId(review.getUser().getId());
+        resReviewDto.setMaterializedPath(review.getMaterializedPath());
+        if(review.isDeleted()) {
+            resReviewDto.setComment("삭제되었습니다.");
+        } else {
+            resReviewDto.setComment(review.getComment());
+        }
+        return resReviewDto;
+    }
+    @Transactional(readOnly = true)
+    public List<ResReviewDto> getReviewsPaging(Long productId, Integer startOffset) {
+        if(productId == null) {
+            throw new ApplicationException(ApplicationError.PRODUCTID_NOT_FOUND);
+        }
+        if(startOffset == null) {
+            startOffset = 0;
+        }
+        int pageSize = 10;
+
+        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("materializedPath").ascending());
+        Slice<Review> reviewList = reviewRepository.findByProductId(pageable, productId);
+        if(reviewList.isEmpty()){
+            throw new ApplicationException(ApplicationError.REVIEW_NOT_FOUND);
+        }
+        Slice<ResReviewDto> dtoPage = reviewList.map(this::toDto);
+        return dtoPage.getContent();
     }
 
     // 해당 리뷰에 대한 접근 권한 검증 후 리뷰 엔티티 반환

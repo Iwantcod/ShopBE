@@ -90,7 +90,7 @@ public class CoolerSpecService implements ProductSpecServiceStrategy<CoolerSpecD
         CoolerSpec coolerSpec = coolerSpecRepository.findById(specDto.getId())
                 .orElseThrow(() -> new ApplicationException(ApplicationError.PRODUCTSPEC_NOT_FOUND));
 
-        if(specDto.getSize() != null) coolerSpec.setSize(specDto.getSize());
+        if(specDto.getGroups() != null) coolerSpec.setGroups(specDto.getGroups());
         if(specDto.getNoise() != null) coolerSpec.setNoise(specDto.getNoise());
         if(specDto.getManufacturer() != null) coolerSpec.setManufacturer(specDto.getManufacturer());
         if(specDto.getModelName() != null) coolerSpec.setModelName(specDto.getModelName());

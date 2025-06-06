@@ -39,18 +39,21 @@ public class CartController {
     }
 
     @PatchMapping("/up/{cartId}") // 장바구니 수량 증가
+    @Operation(summary = "장바구니 수량 1 증가")
     public ResponseEntity<?> upCart(@PathVariable Long cartId) {
         cartService.updateCart(cartId, true);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/down/{cartId}") // 장바구니 수량 감소
+    @Operation(summary = "장바구니 수량 1 감소")
     public ResponseEntity<?> downCart(@PathVariable Long cartId) {
         cartService.updateCart(cartId, false);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{cartId}") // 장바구니 삭제
+    @Operation(summary = "장바구니 요소 제거")
     public ResponseEntity<?> deleteCart(@PathVariable Long cartId) {
         cartService.deleteCart(cartId);
         return ResponseEntity.ok().build();

@@ -11,12 +11,19 @@ import lombok.Getter;
 public class MainBoardSpec extends Spec {
     @Id @GeneratedValue @Column(name = "MAINBOARDSPEC_ID")
     private Long id;
-    @Column(nullable = false)
     private String chipSetType;
-    @Column(nullable = false)
     private String cpuSocket;
-    @Column(nullable = false)
     private Integer mosFet;
+    private String groups; // 사용 CPU 종류 분류
+    private String modelGroups; // 메인보드 크기 분류
+
+    public void setGroups(String groups) {
+        this.groups = groups;
+    }
+
+    public void setModelGroups(String modelGroups) {
+        this.modelGroups = modelGroups;
+    }
 
     public void setChipSetType(String chipSetType) {
         this.chipSetType = chipSetType;

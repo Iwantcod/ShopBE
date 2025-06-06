@@ -10,4 +10,5 @@ import lombok.Setter;
 public class PowerSpecDto extends ModelNameDto {
     private Integer ratedOutputPower;
     private String groups;
+    private String plusGrades;
 }

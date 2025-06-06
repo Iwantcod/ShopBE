@@ -33,18 +33,6 @@ public class UserController {
         this.productService = productService;
     }
 
-    @GetMapping("/refresh") // Refresh Token을 이용하여 두 종류의 토큰 모두 재발급
-    @Operation(summary = "토큰 모두 재발급", description = "Refresh Token을 이용, 두 종류의 토큰 모두 재발급")
-    public ResponseEntity<?> tokenRefresh(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] newCookie = userService.refreshToken(request.getCookies());
-        if(newCookie == null) {
-            // 토큰 재발급 실패 시 로그인 화면으로 리다이렉션
-            return ResponseEntity.status(302).header(HttpHeaders.LOCATION, clientUrl + "/auth/login").build();
-        }
-        response.addCookie(newCookie[0]);
-        response.addCookie(newCookie[1]);
-        return ResponseEntity.ok().build();
-    }
 
     @PatchMapping // 자기 자신의 User 테이블 수정
     @Operation(summary = "자신의 회원 정보 수정", description = "jwt의 userId 정보에 해당하는 회원의 정보 수정")

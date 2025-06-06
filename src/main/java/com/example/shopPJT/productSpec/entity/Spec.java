@@ -16,7 +16,6 @@ public abstract class Spec {
 
     @Column(nullable = false, unique = true)
     private String modelName;
-    @Column(nullable = false)
     private String manufacturer;
     @CreationTimestamp
     private LocalDate createdAt;

@@ -90,7 +90,7 @@ public class CaseSpecServcie implements ProductSpecServiceStrategy<CaseSpecDto> 
         CaseSpec caseSpec = caseSpecRepository.findById(specDto.getId())
                 .orElseThrow(() -> new ApplicationException(ApplicationError.PRODUCTSPEC_NOT_FOUND));
 
-        if(specDto.getSize() != null) caseSpec.setSize(specDto.getSize());
+        if(specDto.getGroups() != null) caseSpec.setGroups(specDto.getGroups());
         if(specDto.getInnerSpace() != null) caseSpec.setInnerSpace(specDto.getInnerSpace());
         if (specDto.getManufacturer() != null) caseSpec.setManufacturer(specDto.getManufacturer());
         if(specDto.getModelName() != null) caseSpec.setModelName(specDto.getModelName());

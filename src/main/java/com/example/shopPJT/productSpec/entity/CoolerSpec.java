@@ -11,15 +11,12 @@ import lombok.Getter;
 public class CoolerSpec extends Spec {
     @Id @GeneratedValue @Column(name = "COOLERSPEC_ID")
     private Long id;
-    @Column(nullable = false)
-    private Integer size;
-    @Column(nullable = false)
+    private String groups;
     private Integer fanSpeed;
-    @Column(nullable = false)
     private Integer noise;
 
-    public void setSize(Integer size) {
-        this.size = size;
+    public void setGroups(String groups) {
+        this.groups = groups;
     }
 
     public void setFanSpeed(Integer fanSpeed) {

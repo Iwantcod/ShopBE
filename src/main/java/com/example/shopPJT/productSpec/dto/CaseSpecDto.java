@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CaseSpecDto extends ModelNameDto {
-    private Integer size;
-    private Integer innerSpace;
+    private String groups;
+    private String innerSpace;
 }
