@@ -40,6 +40,11 @@ public class MainBoardSpecService implements ProductSpecServiceStrategy<MainBoar
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return MainBoardSpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public MainBoardSpecDto getSpecById(Long mainBoardSpecId) { //
         MainBoardSpec mainBoardSpec = mainBoardSpecRepository.findById(mainBoardSpecId) //
@@ -77,13 +82,9 @@ public class MainBoardSpecService implements ProductSpecServiceStrategy<MainBoar
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(MainBoardSpecDto mainBoardSpecDto) { //
-        // 관리자만 모델 스펙 정보 추가 가능
-        if(!AuthUtil.getCurrentUserAuthority().equals("ROLE_ADMIN")) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+    public void createSpec(MainBoardSpecDto specDto) { //
         MainBoardSpec mainBoardSpec = new MainBoardSpec(); //
-        BeanUtils.copyProperties(mainBoardSpecDto, mainBoardSpec); //
+        BeanUtils.copyProperties(specDto, mainBoardSpec); //
         mainBoardSpecRepository.save(mainBoardSpec); //
     }
 

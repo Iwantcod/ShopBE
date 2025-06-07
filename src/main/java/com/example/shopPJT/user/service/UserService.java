@@ -4,10 +4,7 @@ import com.example.shopPJT.businessInfo.entity.BusinessInfo;
 import com.example.shopPJT.businessInfo.repository.BusinessInfoRepository;
 import com.example.shopPJT.global.exception.ApplicationError;
 import com.example.shopPJT.global.exception.ApplicationException;
-import com.example.shopPJT.user.dto.JoinSellerDto;
-import com.example.shopPJT.user.dto.JoinUserDto;
-import com.example.shopPJT.user.dto.ResUserDto;
-import com.example.shopPJT.user.dto.UpdateUserDto;
+import com.example.shopPJT.user.dto.*;
 import com.example.shopPJT.user.entity.RoleType;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
@@ -22,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,28 +57,36 @@ public class UserService {
 
     // 이메일 중복 검사
     @Transactional(readOnly = true)
-    public void isExistUser(String email) {
+    public void isExistEmail(String email) {
         if(userRepository.existsByEmail(email)) {
             throw new ApplicationException(ApplicationError.DUPLICATE_EMAIL);
         }
     }
 
+    // 유저네임 중복 검사
+    @Transactional(readOnly = true)
+    public void isExistUsername(String username) {
+        if(userRepository.existsByUsername(username)) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_USERNAME);
+        }
+    }
+
     // 회원가입 공통로직
-    private User basicJoin(JoinUserDto joinUserDto) {
+    private User basicJoin(JoinDto joinDto) {
         // 이메일, 비밀번호, 이름 중 하나라도 값을 전달받지 못하면 null 반환
-        if(joinUserDto.getEmail() == null || joinUserDto.getPassword() == null
-                || joinUserDto.getName() == null) {
+        if(joinDto.getEmail() == null || joinDto.getPassword() == null
+                || joinDto.getName() == null) {
             return null;
         }
         User user = new User();
-        user.setEmail(joinUserDto.getEmail());
+        user.setEmail(joinDto.getEmail());
         // 비밀번호는 암호화하여 DB에 저장
-        String encodedPassword = bCryptPasswordEncoder.encode(joinUserDto.getPassword());
+        String encodedPassword = bCryptPasswordEncoder.encode(joinDto.getPassword());
         user.setPassword(encodedPassword);
-        user.setName(joinUserDto.getName());
-        user.setAddress(joinUserDto.getAddress());
-        user.setBirth(joinUserDto.getBirth());
-        user.setZipCode(joinUserDto.getZipCode());
+        user.setName(joinDto.getName());
+        user.setAddress(joinDto.getAddress());
+        user.setBirth(joinDto.getBirth());
+        user.setZipCode(joinDto.getZipCode());
         return user;
     }
 
@@ -90,11 +96,14 @@ public class UserService {
         User user = basicJoin(joinUserDto);
         if(user == null){
             throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
-        } else {
-            userRepository.save(user);
-            return true;
         }
-
+        if(userRepository.existsByUsername(joinUserDto.getUsername())) {
+            // 일반 사용자는 유저네임 중복 불가능
+            throw new ApplicationException(ApplicationError.DUPLICATE_USERNAME);
+        }
+        user.setUsername(joinUserDto.getUsername());
+        userRepository.save(user);
+        return true;
     }
 
     // 기본 회원가입: 판매자 유형
@@ -104,6 +113,7 @@ public class UserService {
         if(user == null){
             throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
+        user.setUsername(joinSellerDto.getBusinessName()); // 회원 유저네임을 '사업자명'으로 변경.
         User savedUser = userRepository.save(user);  // 일반 사용자와 User 테이블에 입력되는 로직은 동일
 
         // BusinessInfo 테이블에 행을 추가한다.
@@ -115,8 +125,24 @@ public class UserService {
         businessInfo.setBankName(joinSellerDto.getBankName());
         businessInfo.setBankAccount(joinSellerDto.getBankAccount());
         businessInfo.setDepositor(joinSellerDto.getDepositor());
+        businessInfo.setBusinessName(joinSellerDto.getBusinessName());
         businessInfoRepository.save(businessInfo);
         return true;
+    }
+
+    @Transactional
+    public void completeJoin(Long userId, JoinCompleteDto joinCompleteDto) {
+        if(userId == null) {
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
+        }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new ApplicationException(ApplicationError.USER_NOT_FOUND));
+        user.setUsername(joinCompleteDto.getUsername());
+        user.setBirth(joinCompleteDto.getBirth());
+        user.setPhone(joinCompleteDto.getPhone());
+        user.setAddress(joinCompleteDto.getAddress());
+        user.setZipCode(joinCompleteDto.getZipCode());
+        userRepository.save(user);
     }
 
     @Transactional
@@ -168,10 +194,14 @@ public class UserService {
     @Transactional // 유저 업데이트: 자신의 정보만 업데이트 가능
     public boolean updateUser(UpdateUserDto updateUserDto) {
         Long authUserId = AuthUtil.getSecurityContextUserId();
+        String authUserRole = AuthUtil.getCurrentUserAuthority();
         if(authUserId == null) {
             throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
         }
         if(!authUserId.equals(updateUserDto.getUserId())) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+        if(authUserRole == null) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
 
@@ -182,10 +212,11 @@ public class UserService {
         if(updateUserDto.getPassword() != null) {
             user.get().setPassword(bCryptPasswordEncoder.encode(updateUserDto.getPassword()));
         }
-        if(updateUserDto.getName() != null) {
+        if(updateUserDto.getName() != null && !authUserRole.equals("SELLER")) {
+            // 판매자는 사업자명이 변경되어야만 유저 이름 값이 변경된다.
             user.get().setName(updateUserDto.getName());
-
         }
+
         if(updateUserDto.getAddress() != null) {
             user.get().setAddress(updateUserDto.getAddress());
         }
@@ -287,4 +318,17 @@ public class UserService {
         userRepository.save(user.get());
         return true;
     }
+
+    @Transactional // 판매자 권한 회수
+    public boolean revokeSellerAuth(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isEmpty()) {
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
+        }
+
+        user.get().setRole(RoleType.ROLE_USER);
+        userRepository.save(user.get());
+        return true;
+    }
+
 }

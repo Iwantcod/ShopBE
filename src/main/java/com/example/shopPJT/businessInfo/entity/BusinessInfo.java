@@ -26,6 +26,8 @@ public class BusinessInfo {
     private String bankAccount;
     @Column(nullable = false)
     private String depositor;
+    @Column(nullable = false)
+    private String businessName;
     @Column(nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean isApproval = false;
 
@@ -55,6 +57,10 @@ public class BusinessInfo {
 
     public void setDepositor(String depositor) {
         this.depositor = depositor;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
     }
 
     public void setApproval(Boolean approval) {

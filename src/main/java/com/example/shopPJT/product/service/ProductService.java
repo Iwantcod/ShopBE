@@ -72,6 +72,8 @@ public class ProductService {
         resProductDto.setSellerUserId(product.getUser().getId());
         resProductDto.setDescriptionImageUrl(product.getDescriptionImageUrl());
         resProductDto.setVolume(product.getVolume());
+
+        resProductDto.setSellerUserName(product.getUser().getUsername()); // 판매자 유저네임 == 판매자 사업자명
         return resProductDto;
     }
 

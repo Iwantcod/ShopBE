@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class JoinSellerDto extends JoinUserDto {
+public class JoinSellerDto extends JoinDto {
     @NotBlank(message = "사업자 분류 정보는 필수 정보입니다.")
     private String businessType;
     @NotBlank(message = "사업자 등록번호는 필수 정보입니다.")
@@ -21,4 +21,6 @@ public class JoinSellerDto extends JoinUserDto {
     private String bankAccount;
     @NotBlank(message = "예금자명은 필수 정보입니다.")
     private String depositor;
+    @NotBlank(message = "상호명은 필수 정보입니다.")
+    private String businessName;
 }

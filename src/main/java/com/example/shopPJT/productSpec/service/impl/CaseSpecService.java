@@ -20,10 +20,10 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class CaseSpecServcie implements ProductSpecServiceStrategy<CaseSpecDto> {
+public class CaseSpecService implements ProductSpecServiceStrategy<CaseSpecDto> {
     private final CaseSpecRepository caseSpecRepository;
     @Autowired
-    public CaseSpecServcie(CaseSpecRepository caseSpecRepository) {
+    public CaseSpecService(CaseSpecRepository caseSpecRepository) {
         this.caseSpecRepository = caseSpecRepository;
     }
 
@@ -36,6 +36,11 @@ public class CaseSpecServcie implements ProductSpecServiceStrategy<CaseSpecDto> 
     @Override
     public String getSpecType() {
         return CategoryName.CASE.toString().toLowerCase();
+    }
+
+    @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return CaseSpecDto.class;
     }
 
     @Override
@@ -76,9 +81,9 @@ public class CaseSpecServcie implements ProductSpecServiceStrategy<CaseSpecDto> 
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(CaseSpecDto caseSpecDto) {
+    public void createSpec(CaseSpecDto specDto) {
         CaseSpec caseSpec = new CaseSpec();
-        BeanUtils.copyProperties(caseSpecDto, caseSpec);
+        BeanUtils.copyProperties(specDto, caseSpec);
         caseSpecRepository.save(caseSpec);
     }
 
@@ -86,7 +91,6 @@ public class CaseSpecServcie implements ProductSpecServiceStrategy<CaseSpecDto> 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 수정 가능
     public void updateSpec(CaseSpecDto specDto) {
-
         CaseSpec caseSpec = caseSpecRepository.findById(specDto.getId())
                 .orElseThrow(() -> new ApplicationException(ApplicationError.PRODUCTSPEC_NOT_FOUND));
 

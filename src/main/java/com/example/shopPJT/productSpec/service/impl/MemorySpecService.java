@@ -40,6 +40,11 @@ public class MemorySpecService implements ProductSpecServiceStrategy<MemorySpecD
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return MemorySpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public MemorySpecDto getSpecById(Long memorySpecId) { //
         MemorySpec memorySpec = memorySpecRepository.findById(memorySpecId) //
@@ -77,13 +82,9 @@ public class MemorySpecService implements ProductSpecServiceStrategy<MemorySpecD
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(MemorySpecDto memorySpecDto) { //
-        // 관리자만 모델 스펙 정보 추가 가능
-        if(!AuthUtil.getCurrentUserAuthority().equals("ROLE_ADMIN")) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+    public void createSpec(MemorySpecDto specDto) { //
         MemorySpec memorySpec = new MemorySpec(); //
-        BeanUtils.copyProperties(memorySpecDto, memorySpec); //
+        BeanUtils.copyProperties(specDto, memorySpec); //
         memorySpecRepository.save(memorySpec); //
     }
 

@@ -14,4 +14,5 @@ public class ReqBusinessInfoDto {
     private String bankName;
     private String bankAccount;
     private String depositor;
+    private String businessName;
 }

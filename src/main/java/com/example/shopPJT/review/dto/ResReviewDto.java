@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ResReviewDto {
     private Long reviewId;
     private Long userId;
+    private String username;
     private String comment;
     private LocalDateTime createdAt;
     private String materializedPath;

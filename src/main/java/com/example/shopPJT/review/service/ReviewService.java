@@ -90,12 +90,13 @@ public class ReviewService {
         ResReviewDto resReviewDto = new ResReviewDto();
         resReviewDto.setReviewId(review.getId());
         resReviewDto.setCreatedAt(review.getCreatedAt());
-        resReviewDto.setUserId(review.getUser().getId());
         resReviewDto.setMaterializedPath(review.getMaterializedPath());
         if(review.isDeleted()) {
             resReviewDto.setComment("삭제되었습니다.");
         } else {
             resReviewDto.setComment(review.getComment());
+            resReviewDto.setUserId(review.getUser().getId());
+            resReviewDto.setUsername(review.getUser().getUsername());
         }
         return resReviewDto;
     }

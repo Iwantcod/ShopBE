@@ -16,5 +16,6 @@ public class ResBusinessInfoDto {
     private String bankName;
     private String bankAccount;
     private String depositor;
+    private String businessName;
     private Boolean isApprove;
 }

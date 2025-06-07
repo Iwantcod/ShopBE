@@ -24,6 +24,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String username; // 일반 사용자 가입 시 애플리케이션 레벨 중복 체크, 판매자 가입 시 중복체크 X(사업자명 중복 가능성 있기 때문)
+
     @Column(unique = true)
     private String phone;
 
@@ -58,6 +61,10 @@ public class User {
 
     public void setoAuth2Id(String oAuth2Id) {
         this.oAuth2Id = oAuth2Id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setPassword(String password) {

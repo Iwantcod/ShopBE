@@ -1,5 +1,6 @@
 package com.example.shopPJT.productSpec.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(description = "부품의 모델명과 제조사만 제공하는 간단 DTO")
 public class ModelNameDto {
     private Long id;
     private String modelName;

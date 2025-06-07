@@ -66,6 +66,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             log.error("User ID Not Exist: {}", userId);
         }
 
+        System.out.println("user Id: " + userId);
+        System.out.println("user Role: " + role);
+
     }
 
     @Override // 로그인 실패 시 수행되는 메소드

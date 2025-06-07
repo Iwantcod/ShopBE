@@ -10,7 +10,6 @@ import java.time.LocalDate;
 
 @MappedSuperclass
 @Getter
-@Setter
 public abstract class Spec {
     // spec 테이블의 공통 요소를 묶은 추상 클래스
 
@@ -19,4 +18,12 @@ public abstract class Spec {
     private String manufacturer;
     @CreationTimestamp
     private LocalDate createdAt;
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
 }

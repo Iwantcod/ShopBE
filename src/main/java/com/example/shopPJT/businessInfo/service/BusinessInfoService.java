@@ -4,19 +4,43 @@ import com.example.shopPJT.businessInfo.dto.ReqBusinessInfoDto;
 import com.example.shopPJT.businessInfo.dto.ResBusinessInfoDto;
 import com.example.shopPJT.businessInfo.entity.BusinessInfo;
 import com.example.shopPJT.businessInfo.repository.BusinessInfoRepository;
+import com.example.shopPJT.user.entity.User;
+import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class BusinessInfoService {
     private final BusinessInfoRepository businessInfoRepository;
+    private final UserRepository userRepository;
+
     @Autowired
-    public BusinessInfoService(BusinessInfoRepository businessInfoRepository) {
+    public BusinessInfoService(BusinessInfoRepository businessInfoRepository, UserRepository userRepository) {
         this.businessInfoRepository = businessInfoRepository;
+        this.userRepository = userRepository;
+    }
+
+    private ResBusinessInfoDto toDto(BusinessInfo businessInfo) {
+        ResBusinessInfoDto resBusinessInfoDto = new ResBusinessInfoDto();
+        resBusinessInfoDto.setBusinessId(businessInfo.getId());
+        resBusinessInfoDto.setUserId(businessInfo.getUser().getId());
+        resBusinessInfoDto.setBusinessName(businessInfo.getBusinessName());
+        resBusinessInfoDto.setBusinessNumber(businessInfo.getBusinessNumber());
+        resBusinessInfoDto.setBusinessType(businessInfo.getBusinessType());
+        resBusinessInfoDto.setDepositor(businessInfo.getDepositor());
+        resBusinessInfoDto.setOfficeAddress(businessInfo.getOfficeAddress());
+        resBusinessInfoDto.setBankName(businessInfo.getBankName());
+        resBusinessInfoDto.setBankAccount(businessInfo.getBankAccount());
+        return resBusinessInfoDto;
     }
 
     @Transactional // 판매자 권한 승인
@@ -26,6 +50,16 @@ public class BusinessInfoService {
             return false;
         }
         businessInfo.get().setApproval(true);
+        return true;
+    }
+
+    @Transactional // 판매자 권한 회수
+    public boolean disapproveSellAuth(Long userId) {
+        Optional<BusinessInfo> businessInfo = businessInfoRepository.findByUserId(userId);
+        if (businessInfo.isEmpty()) {
+            return false;
+        }
+        businessInfo.get().setApproval(false);
         return true;
     }
 
@@ -45,6 +79,7 @@ public class BusinessInfoService {
         resBusinessInfoDto.setBankName(businessInfo.get().getBankName());
         resBusinessInfoDto.setBankAccount(businessInfo.get().getBankAccount());
         resBusinessInfoDto.setDepositor(businessInfo.get().getDepositor());
+        resBusinessInfoDto.setBusinessName(businessInfo.get().getBusinessName());
         resBusinessInfoDto.setIsApprove(businessInfo.get().getIsApproval());
         return resBusinessInfoDto;
     }
@@ -76,6 +111,27 @@ public class BusinessInfoService {
         if(reqBusinessInfoDto.getDepositor() != null) {
             businessInfo.get().setDepositor(reqBusinessInfoDto.getDepositor());
         }
+        if(reqBusinessInfoDto.getBusinessName() != null) {
+            businessInfo.get().setBusinessName(reqBusinessInfoDto.getBusinessName());
+            Optional<User> user = userRepository.findById(businessInfo.get().getUser().getId());
+            if(user.isEmpty()) {
+                return false;
+            }
+            // 비즈니스 로직 상 판매자의 유저네임은 사업자명과 같아야 하므로, 사업자명 변경 시에만 판매자의 이름이 변경된다.
+            user.get().setUsername(reqBusinessInfoDto.getBusinessName());
+        }
         return true;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ResBusinessInfoDto> getWaitingApproveSellerList(Integer startOffset) {
+        if(startOffset == null) {
+            startOffset = 0;
+        }
+        int pageSize = 15;
+        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("businessInfoId").descending());
+        Slice<BusinessInfo> businessInfos = businessInfoRepository.findByIsApprovalFalsePaging(pageable);
+        Slice<ResBusinessInfoDto> result = businessInfos.map(this::toDto);
+        return result.getContent();
     }
 }

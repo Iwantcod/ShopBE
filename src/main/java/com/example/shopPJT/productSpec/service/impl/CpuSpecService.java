@@ -39,6 +39,11 @@ public class CpuSpecService implements ProductSpecServiceStrategy<CpuSpecDto> {
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return CpuSpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public CpuSpecDto getSpecById(Long cpuSpecId) { //
         CpuSpec cpuSpec = cpuSpecRepository.findById(cpuSpecId) //
@@ -76,9 +81,9 @@ public class CpuSpecService implements ProductSpecServiceStrategy<CpuSpecDto> {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(CpuSpecDto cpuSpecDto) { //
+    public void createSpec(CpuSpecDto specDto) { //
         CpuSpec cpuSpec = new CpuSpec(); //
-        BeanUtils.copyProperties(cpuSpecDto, cpuSpec); //
+        BeanUtils.copyProperties(specDto, cpuSpec); //
         cpuSpecRepository.save(cpuSpec); //
     }
 
@@ -94,7 +99,7 @@ public class CpuSpecService implements ProductSpecServiceStrategy<CpuSpecDto> {
         if(specDto.getManufacturer() != null) cpuSpec.setManufacturer(specDto.getManufacturer());
         if(specDto.getModelName() != null) cpuSpec.setModelName(specDto.getModelName());
         if(specDto.getThreadNum() != null) cpuSpec.setThreadNum(specDto.getThreadNum());
-        if(specDto.getL3cache() != null) cpuSpec.setL3Cache(specDto.getL3cache());
+        if(specDto.getL3Cache() != null) cpuSpec.setL3Cache(specDto.getL3Cache());
         if(specDto.getProcessSize() != null) cpuSpec.setProcessSize(specDto.getProcessSize());
     }
 

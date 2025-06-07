@@ -40,6 +40,11 @@ public class StorageSpecService implements ProductSpecServiceStrategy<StorageSpe
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return StorageSpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public StorageSpecDto getSpecById(Long storageSpecId) { //
         StorageSpec storageSpec = storageSpecRepository.findById(storageSpecId) //
@@ -77,13 +82,9 @@ public class StorageSpecService implements ProductSpecServiceStrategy<StorageSpe
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(StorageSpecDto storageSpecDto) { //
-        // 관리자만 모델 스펙 정보 추가 가능
-        if(!AuthUtil.getCurrentUserAuthority().equals("ROLE_ADMIN")) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
-        }
+    public void createSpec(StorageSpecDto specDto) { //
         StorageSpec storageSpec = new StorageSpec(); //
-        BeanUtils.copyProperties(storageSpecDto, storageSpec); //
+        BeanUtils.copyProperties(specDto, storageSpec); //
         storageSpecRepository.save(storageSpec); //
     }
 

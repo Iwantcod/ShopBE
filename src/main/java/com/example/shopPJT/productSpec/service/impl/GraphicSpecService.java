@@ -40,6 +40,11 @@ public class GraphicSpecService implements ProductSpecServiceStrategy<GraphicSpe
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return GraphicSpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public GraphicSpecDto getSpecById(Long graphicSpecId) { //
         GraphicSpec graphicSpec = graphicSpecRepository.findById(graphicSpecId) //
@@ -77,9 +82,9 @@ public class GraphicSpecService implements ProductSpecServiceStrategy<GraphicSpe
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(GraphicSpecDto graphicSpecDto) { //
+    public void createSpec(GraphicSpecDto specDto) { //
         GraphicSpec graphicSpec = new GraphicSpec(); //
-        BeanUtils.copyProperties(graphicSpecDto, graphicSpec); //
+        BeanUtils.copyProperties(specDto, graphicSpec); //
         graphicSpecRepository.save(graphicSpec); //
     }
 

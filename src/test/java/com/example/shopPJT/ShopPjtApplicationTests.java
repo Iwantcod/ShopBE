@@ -1,5 +1,6 @@
 package com.example.shopPJT;
 
+import com.example.shopPJT.benchmark.repository.BenchMarkRepository;
 import com.example.shopPJT.product.entity.Category;
 import com.example.shopPJT.product.entity.CategoryName;
 import com.example.shopPJT.product.entity.Product;
@@ -32,6 +33,8 @@ class ShopPjtApplicationTests {
 	private final UserRepository userRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private BenchMarkRepository benchMarkRepository;
 
 	@Autowired
 	ShopPjtApplicationTests(CategoryRepository categoryRepository, CpuSpecRepository cpuSpecRepository, GraphicSpecRepository graphicSpecRepository, CaseSpecRepository caseSpecRepository,
@@ -51,19 +54,7 @@ class ShopPjtApplicationTests {
 
 	@Test
 	void contextLoads() {
-		Category category = categoryRepository.findByName(CategoryName.CPU.toString()).get();
-		User user = userRepository.findById(1L).get();
-		for(int i = 0; i < 100; i++) {
-			Product product = new Product();
-			product.setCategory(category);
-			product.setName("Product " + i);
-			product.setUser(user);
-			product.setInventory(100);
-			product.setLogicalFK(1L);
-			product.setPrice(10000);
-			productRepository.save(product);
-		}
-
+		benchMarkRepository.findByCpuSpecIdAndGraphicSpecId(1L, 1L);
 	}
 
 }

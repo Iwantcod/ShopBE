@@ -15,6 +15,7 @@ public class ResProductDto {
     private Integer price;
     private Integer inventory;
     private Long sellerUserId;
+    private String sellerUserName; // 판매자의 유저네임(사업자명)
     private String productImageUrl; // 대표 이미지: 기본적으로 요청
     private String descriptionImageUrl; // 상세 페이지 이미지: 상세 조회 시 실제 이미지를 요청
     private Integer categoryId;

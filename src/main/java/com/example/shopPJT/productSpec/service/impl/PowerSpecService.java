@@ -40,6 +40,11 @@ public class PowerSpecService implements ProductSpecServiceStrategy<PowerSpecDto
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return PowerSpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public PowerSpecDto getSpecById(Long powerSpecId) { //
         PowerSpec powerSpec = powerSpecRepository.findById(powerSpecId) //
@@ -77,9 +82,9 @@ public class PowerSpecService implements ProductSpecServiceStrategy<PowerSpecDto
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 수정 가능
-    public void createSpec(PowerSpecDto powerSpecDto) { //
+    public void createSpec(PowerSpecDto specDto) { //
         PowerSpec powerSpec = new PowerSpec(); //
-        BeanUtils.copyProperties(powerSpecDto, powerSpec); //
+        BeanUtils.copyProperties(specDto, powerSpec); //
         powerSpecRepository.save(powerSpec); //
     }
 

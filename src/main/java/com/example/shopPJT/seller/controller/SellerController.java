@@ -25,7 +25,7 @@ public class SellerController {
 
     // 상품 추가
     @PostMapping(value = "/product",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "상품 추가", description = "2개 이미지 필수. 등록자 id는 jwt내에 존재하는 id로 사용")
+    @Operation(summary = "상품 추가", description = "대표 이미지 및 상세 이미지 필수. 게시자명은 유저네임(닉네임) 사용")
     public ResponseEntity<?> addProduct(@Valid @ModelAttribute ReqProductDto reqProductDto) throws IOException {
         if(productService.addProduct(reqProductDto)) {
             return ResponseEntity.ok().body("상품이 등록되었습니다.");

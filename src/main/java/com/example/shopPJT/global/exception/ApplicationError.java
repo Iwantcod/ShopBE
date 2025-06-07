@@ -18,6 +18,7 @@ public enum ApplicationError {
     REFRESH_TOKEN_NOT_MATCH(HttpStatus.NOT_FOUND, "Refresh Token이 유효하지 않습니다."),
     REFRESH_TOKEN_UPDATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류로 인해 Refresh Token 정보를 갱신하지 못했습니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
+    DUPLICATE_USERNAME(HttpStatus.CONFLICT, "이미 존재하는 유저네임(닉네임)입니다."),
     DUPLICATE_PHONE(HttpStatus.CONFLICT, "이미 존재하는 전화번호입니다."),
     WRONG_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
 
@@ -30,6 +31,7 @@ public enum ApplicationError {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."),
     USER_DELETED(HttpStatus.NOT_FOUND, "탈퇴한 회원입니다."),
     PRODUCTSPEC_NOT_FOUND(HttpStatus.NOT_FOUND, "제품 모델 정보를 찾을 수 없습니다."),
+    BENCHMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "벤치마크 정보를 찾을 수 없습니다."),
     PRODUCT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 수량은 0 이상이어야 합니다."),
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니가 존재하지 않습니다."),
     CARTID_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니 식별자가 존재하지 않습니다."),

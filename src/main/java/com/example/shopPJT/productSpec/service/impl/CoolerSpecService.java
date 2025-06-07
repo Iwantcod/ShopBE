@@ -39,6 +39,11 @@ public class CoolerSpecService implements ProductSpecServiceStrategy<CoolerSpecD
     }
 
     @Override
+    public Class<? extends ModelNameDto> getDtoClass() {
+        return CoolerSpecDto.class;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 식별자로 조회
     public CoolerSpecDto getSpecById(Long coolerSpecId) {
         CoolerSpec coolerSpec = coolerSpecRepository.findById(coolerSpecId) //
@@ -76,9 +81,9 @@ public class CoolerSpecService implements ProductSpecServiceStrategy<CoolerSpecD
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 추가 가능
-    public void createSpec(CoolerSpecDto coolerSpecDto) {
+    public void createSpec(CoolerSpecDto specDto) {
         CoolerSpec coolerSpec = new CoolerSpec(); //
-        BeanUtils.copyProperties(coolerSpec, coolerSpec); //
+        BeanUtils.copyProperties(specDto, coolerSpec); //
         coolerSpecRepository.save(coolerSpec); //
     }
 
@@ -86,7 +91,6 @@ public class CoolerSpecService implements ProductSpecServiceStrategy<CoolerSpecD
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") // 관리자만 모델 스펙 정보 수정 가능
     public void updateSpec(CoolerSpecDto specDto) {
-
         CoolerSpec coolerSpec = coolerSpecRepository.findById(specDto.getId())
                 .orElseThrow(() -> new ApplicationException(ApplicationError.PRODUCTSPEC_NOT_FOUND));
 

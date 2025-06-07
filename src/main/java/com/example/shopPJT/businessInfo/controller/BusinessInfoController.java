@@ -32,7 +32,7 @@ public class BusinessInfoController {
 
 
     @PatchMapping // BusinessInfo 테이블 수정: 자기 자신만 가능
-    @Operation(summary = "자신의 BusinessInfo 정보 수정", description = "jwt의 userId 정보에 해당하는 BusinessInfo의 정보 수정")
+    @Operation(summary = "자신의 BusinessInfo 정보 수정", description = "사업자명이 변경되면 판매자의 유저네임 또한 동시에 변경됩니다.")
     public ResponseEntity<?> updateBusinessInfo(@ModelAttribute ReqBusinessInfoDto reqBusinessInfoDto) {
         if(businessInfoService.updateBusinessInfo(reqBusinessInfoDto)) {
             return ResponseEntity.ok().build();

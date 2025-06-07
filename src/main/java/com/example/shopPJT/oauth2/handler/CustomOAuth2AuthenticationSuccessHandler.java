@@ -37,7 +37,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         // 가입절차가 완료되지 않은 경우 분기처리(전화번호 컬럼 값 존재 유무로 판단)
         if(user.getPhone() == null) {
             request.getSession().setAttribute("incompleteUserId", user.getId());
-            response.sendRedirect(clientUrl + "/auth/join/complete"); // 나머지 유저 정보를 입력하는 창으로 리다이렉션
+            response.sendRedirect(clientUrl + "/auth/complete"); // 나머지 유저 정보를 입력하는 창으로 리다이렉션
         } else {
             Long userId = user.getId();
             Collection<? extends GrantedAuthority> authorities = customOAuth2UserDetails.getAuthorities();

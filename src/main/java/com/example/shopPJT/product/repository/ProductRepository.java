@@ -25,11 +25,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("UPDATE Product p SET p.isDeleted = true WHERE p.id = :userId")
     void setAllProductDeleteTrueByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT p FROM Product p WHERE p.user.id = :userId AND p.isDeleted = false")
+    @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.user.id = :userId AND p.isDeleted = false")
     Slice<Product> findAllActiveByUserId(Pageable pageable, @Param("userId") Long userId);
 
 
     // '삭제' 상태가 아닌 상품 정보 10개 페이징 조회
-    @Query("SELECT p FROM Product p WHERE p.isDeleted = false AND p.category.id = :categoryId")
+    @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.isDeleted = false AND p.category.id = :categoryId")
     Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Integer categoryId);
 }
