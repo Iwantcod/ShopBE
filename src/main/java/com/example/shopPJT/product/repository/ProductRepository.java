@@ -22,11 +22,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByIdsWithPessimisticLock(List<Long> productIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE Product p SET p.isDeleted = true WHERE p.id = :userId")
+    @Query("UPDATE Product p SET p.isDeleted = true WHERE p.id = :userId") // 상품 soft-delete
     void setAllProductDeleteTrueByUserId(@Param("userId") Long userId);
 
     @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.user.id = :userId AND p.isDeleted = false")
-    Slice<Product> findAllActiveByUserId(Pageable pageable, @Param("userId") Long userId);
+    Slice<Product> findAllActiveByUserId(Pageable pageable, @Param("userId") Long userId); // 특정 판매자의 게시 상품 페이징 조회
 
 
     // '삭제' 상태가 아닌 상품 정보 10개 페이징 조회

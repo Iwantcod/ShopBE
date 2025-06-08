@@ -100,11 +100,6 @@ public class AdminController {
         if(dtoClass == null) {
             return ResponseEntity.badRequest().build();
         }
-
-        String[] keys = requesMap.keySet().toArray(new String[0]);
-        for (String key : keys) {
-            System.out.println(key+" "+requesMap.get(key));
-        }
         productSpecServiceFactory.getStrategy(categoryName.toLowerCase()).createSpec(objectMapper.convertValue(requesMap, dtoClass));
         return ResponseEntity.ok().build();
     }

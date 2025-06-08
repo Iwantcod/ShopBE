@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,8 +83,14 @@ public class OrderService {
         int amount = 0;
         for(ReqOrderItemsDto item : reqOrderDto.getOrderItems()) {
             // 이 상품 조회 메소드 호출은 쿼리문을 실행하지 않는다: JPA 영속성 컨텍스트에 이미 로드된 상태이기 때문이다. (productIds)
-            Product curProduct = productRepository.findById(item.getProductId()).orElseThrow(() ->
-                    new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
+            Product curProduct = productRepository.findById(item.getProductId()).orElseThrow(()
+                    -> new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
+
+            if(curProduct.getIsDeleted()) {
+                // '삭제처리'된 상품이 포함되어 있다면 예외를 발생시킨다.
+                orderRepository.deleteById(order.getId());
+                throw new ApplicationException(ApplicationError.WRONG_REQUEST);
+            }
 
             // 2. 주문 상품의 재고량을 주문 수량만큼 감소
             if(curProduct.getInventory() - item.getQuantity() < 0) {
