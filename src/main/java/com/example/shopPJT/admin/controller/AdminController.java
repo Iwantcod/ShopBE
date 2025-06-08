@@ -12,6 +12,7 @@ import com.example.shopPJT.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -80,7 +81,7 @@ public class AdminController {
 
     @PatchMapping("/category")
     @Operation(summary = "특정 카테고리의 이름 변경")
-    public ResponseEntity<Void> updateCategory(@ModelAttribute ReqCategoryDto reqCategoryDto) {
+    public ResponseEntity<Void> updateCategory(@Valid @ModelAttribute ReqCategoryDto reqCategoryDto) {
         if(categoryService.updateCategory(reqCategoryDto)) {
             return ResponseEntity.ok().build();
         } else {
@@ -88,10 +89,10 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/category")
+    @DeleteMapping("/category/{categoryId}")
     @Operation(summary = "특정 카테고리 제거", description = "가능한 사용 X")
-    public ResponseEntity<Void> deleteCategory(@ModelAttribute ReqCategoryDto reqCategoryDto) {
-        categoryService.deleteCategory(reqCategoryDto);
+    public ResponseEntity<Void> deleteCategory(@PathVariable Integer categoryId) {
+        categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok().build();
     }
 

@@ -88,6 +88,4 @@ public class AuthController {
         response.addCookie(newCookie[1]);
         return ResponseEntity.ok().build();
     }
-
-
 }

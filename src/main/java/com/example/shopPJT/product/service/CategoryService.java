@@ -55,7 +55,7 @@ public class CategoryService {
     }
 
     @Transactional // 특정 카테고리 제거: 관리자 권한(가능한 사용하지 말것)
-    public void deleteCategory(ReqCategoryDto reqCategoryDto) {
-        categoryRepository.deleteById(reqCategoryDto.getCategoryId());
+    public void deleteCategory(Integer categoryId) {
+        categoryRepository.deleteById(categoryId);
     }
 }
