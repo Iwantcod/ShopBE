@@ -26,7 +26,7 @@ public class CartController {
 
     @PostMapping("/add")
     @Operation(summary = "장바구니 상품 추가")
-    public ResponseEntity<?> addCart(@Valid @RequestBody ReqCartDto reqCartDto) {
+    public ResponseEntity<Void> addCart(@Valid @RequestBody ReqCartDto reqCartDto) {
         cartService.addCart(reqCartDto);
         return ResponseEntity.ok().build();
     }
@@ -40,21 +40,21 @@ public class CartController {
 
     @PatchMapping("/up/{cartId}") // 장바구니 수량 증가
     @Operation(summary = "장바구니 수량 1 증가")
-    public ResponseEntity<?> upCart(@PathVariable Long cartId) {
+    public ResponseEntity<Void> upCart(@PathVariable Long cartId) {
         cartService.updateCart(cartId, true);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/down/{cartId}") // 장바구니 수량 감소
     @Operation(summary = "장바구니 수량 1 감소")
-    public ResponseEntity<?> downCart(@PathVariable Long cartId) {
+    public ResponseEntity<Void> downCart(@PathVariable Long cartId) {
         cartService.updateCart(cartId, false);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{cartId}") // 장바구니 삭제
     @Operation(summary = "장바구니 요소 제거")
-    public ResponseEntity<?> deleteCart(@PathVariable Long cartId) {
+    public ResponseEntity<Void> deleteCart(@PathVariable Long cartId) {
         cartService.deleteCart(cartId);
         return ResponseEntity.ok().build();
     }

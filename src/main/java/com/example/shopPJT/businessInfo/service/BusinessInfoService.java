@@ -4,6 +4,8 @@ import com.example.shopPJT.businessInfo.dto.ReqBusinessInfoDto;
 import com.example.shopPJT.businessInfo.dto.ResBusinessInfoDto;
 import com.example.shopPJT.businessInfo.entity.BusinessInfo;
 import com.example.shopPJT.businessInfo.repository.BusinessInfoRepository;
+import com.example.shopPJT.global.exception.ApplicationError;
+import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.util.AuthUtil;
@@ -66,22 +68,9 @@ public class BusinessInfoService {
 
     @Transactional(readOnly = true) // 특정 회원 식별자를 가지는 행을 찾아서 반환
     public ResBusinessInfoDto getBusinessInfoByUserId(Long userId) {
-        Optional<BusinessInfo> businessInfo = businessInfoRepository.findByUserId(userId);
-        if (businessInfo.isEmpty()) {
-            return null;
-        }
-        ResBusinessInfoDto resBusinessInfoDto = new ResBusinessInfoDto();
-        resBusinessInfoDto.setBusinessId(businessInfo.get().getId());
-        resBusinessInfoDto.setUserId(userId);
-        resBusinessInfoDto.setBusinessType(businessInfo.get().getBusinessType());
-        resBusinessInfoDto.setBusinessNumber(businessInfo.get().getBusinessNumber());
-        resBusinessInfoDto.setOfficeAddress(businessInfo.get().getOfficeAddress());
-        resBusinessInfoDto.setBankName(businessInfo.get().getBankName());
-        resBusinessInfoDto.setBankAccount(businessInfo.get().getBankAccount());
-        resBusinessInfoDto.setDepositor(businessInfo.get().getDepositor());
-        resBusinessInfoDto.setBusinessName(businessInfo.get().getBusinessName());
-        resBusinessInfoDto.setIsApprove(businessInfo.get().getIsApproval());
-        return resBusinessInfoDto;
+        BusinessInfo businessInfo = businessInfoRepository.findByUserId(userId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.BUSINESSINFO_NOT_FOUND));
+        return toDto(businessInfo);
     }
 
 

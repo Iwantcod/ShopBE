@@ -1,5 +1,7 @@
 package com.example.shopPJT.product.service;
 
+import com.example.shopPJT.global.exception.ApplicationError;
+import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.product.dto.ReqCategoryDto;
 import com.example.shopPJT.product.dto.ResCategoryDto;
 import com.example.shopPJT.product.entity.Category;
@@ -22,28 +24,22 @@ public class CategoryService {
 
     @Transactional(readOnly = true) // 카테고리 식별자로 카테고리 정보 조회
     public ResCategoryDto getCategoryById(Integer categoryId) {
-        Optional<Category> category = categoryRepository.findById(categoryId);
-        if(category.isPresent()) {
-            ResCategoryDto resCategoryDto = new ResCategoryDto();
-            resCategoryDto.setCategoryId(categoryId);
-            resCategoryDto.setCategoryName(category.get().getName());
-            return resCategoryDto;
-        } else {
-            return null;
-        }
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
+        ResCategoryDto resCategoryDto = new ResCategoryDto();
+        resCategoryDto.setCategoryId(categoryId);
+        resCategoryDto.setCategoryName(category.getName());
+        return resCategoryDto;
     }
 
     @Transactional(readOnly = true) // 카테고리 이름으로 카테고리 정보 조회
     public ResCategoryDto getCategoryByName(String categoryName) {
-        Optional<Category> category = categoryRepository.findByName(categoryName);
-        if(category.isPresent()) {
-            ResCategoryDto resCategoryDto = new ResCategoryDto();
-            resCategoryDto.setCategoryId(category.get().getId());
-            resCategoryDto.setCategoryName(category.get().getName());
-            return resCategoryDto;
-        } else {
-            return null;
-        }
+        Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
+                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
+        ResCategoryDto resCategoryDto = new ResCategoryDto();
+        resCategoryDto.setCategoryId(category.getId());
+        resCategoryDto.setCategoryName(category.getName());
+        return resCategoryDto;
     }
 
 

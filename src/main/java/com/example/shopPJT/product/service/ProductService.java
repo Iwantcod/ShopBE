@@ -359,7 +359,7 @@ public class ProductService {
         product.setDeleted(true);
     }
 
-    @Transactional // 재고 증가(isIncrement: true) 및 재고 감소(isIncrement: false) // isOrderRequest: 주문 요청인지에 대한 여부
+    @Transactional // 재고 증가(isIncrement: true) 및 재고 감소(isIncrement: false)
     public void modifyInventory(Long productId, Integer quantity, Boolean isIncrement) {
         Long userId = AuthUtil.getSecurityContextUserId();
         Product product = productRepository.findByIdWithPessimisticLock(productId).orElseThrow(() ->

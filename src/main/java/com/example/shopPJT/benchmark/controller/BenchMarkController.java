@@ -1,5 +1,6 @@
 package com.example.shopPJT.benchmark.controller;
 
+import com.example.shopPJT.benchmark.dto.ResBenchMarkDto;
 import com.example.shopPJT.benchmark.service.BenchMarkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +23,7 @@ public class BenchMarkController {
 
     @GetMapping
     @Operation(summary = "cpu, graphic 식별자를 통해 벤치마크 값 조회")
-    public ResponseEntity<?> getBenchMark(@RequestParam Long cpuSpecId, @RequestParam Long graphicSpecId) {
+    public ResponseEntity<ResBenchMarkDto> getBenchMark(@RequestParam Long cpuSpecId, @RequestParam Long graphicSpecId) {
         if(cpuSpecId == null || graphicSpecId == null) {
             return ResponseEntity.badRequest().build();
         }

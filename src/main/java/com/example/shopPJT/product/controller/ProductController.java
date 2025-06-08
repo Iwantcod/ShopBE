@@ -35,68 +35,38 @@ public class ProductController {
 
     @GetMapping("/{categoryName}/latest/{startOffset}")
     @Operation(summary = "등록일자 최신순 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
-    public ResponseEntity<?> getProductLatest(@PathVariable String categoryName, @PathVariable Integer startOffset) {
-        List<ResProductDto> productDtoList = productService.getAllProductDesc(categoryName, startOffset);
-        if(productDtoList != null) {
-            return ResponseEntity.ok(productDtoList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<ResProductDto>> getProductLatest(@PathVariable String categoryName, @PathVariable Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getAllProductDesc(categoryName, startOffset));
     }
 
     @GetMapping("/{categoryName}/popular/{startOffset}")
     @Operation(summary = "판매량 높은순 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
-    public ResponseEntity<?> getProductPopular(@PathVariable String categoryName, @PathVariable Integer startOffset) {
-        List<ResProductDto> productDtoList = productService.getAllProductVolumeDesc(categoryName, startOffset);
-        if(productDtoList != null) {
-            return ResponseEntity.ok(productDtoList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<ResProductDto>> getProductPopular(@PathVariable String categoryName, @PathVariable Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getAllProductVolumeDesc(categoryName, startOffset));
     }
 
     @GetMapping("/{categoryName}/lowest-price/{startOffset}")
     @Operation(summary = "낮은 가격순 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
-    public ResponseEntity<?> getProductLowestPrice(@PathVariable String categoryName, @PathVariable Integer startOffset) {
-        List<ResProductDto> productDtoList = productService.getAllProductPrice(categoryName, startOffset, false);
-        if(productDtoList != null) {
-            return ResponseEntity.ok(productDtoList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<ResProductDto>> getProductLowestPrice(@PathVariable String categoryName, @PathVariable Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getAllProductPrice(categoryName, startOffset, false));
     }
 
     @GetMapping("/{categoryName}/highest-price/{startOffset}")
     @Operation(summary = "높은 가격순 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
-    public ResponseEntity<?> getProductHighestPrice(@PathVariable("categoryName") String categoryName, @PathVariable Integer startOffset) {
-        List<ResProductDto> productDtoList = productService.getAllProductPrice(categoryName, startOffset, true);
-        if(productDtoList != null) {
-            return ResponseEntity.ok(productDtoList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<ResProductDto>> getProductHighestPrice(@PathVariable("categoryName") String categoryName, @PathVariable Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getAllProductPrice(categoryName, startOffset, true));
     }
 
     @GetMapping("/{productId}")
     @Operation(summary = "상품 식별자로 상품 조회", description = "삭제 처리된 상품이어도 조회")
-    public ResponseEntity<?> getProductById(@PathVariable("productId") Long productId) {
-        ResProductDto productDto = productService.getProductById(productId);
-        if(productDto != null) {
-            return ResponseEntity.ok(productDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<ResProductDto> getProductById(@PathVariable("productId") Long productId) {
+        return ResponseEntity.ok().body(productService.getProductById(productId));
     }
 
     @GetMapping("/seller/{userId}/{startOffset}")
     @Operation(summary = "판매자 식별자를 통해 특정 판매자가 업로드한 모든 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
-    public ResponseEntity<?> getProductListBySellerId(@PathVariable("userId") Long userId, @PathVariable Integer startOffset) {
-        List<ResProductDto> productDtoList = productService.getProductListByUserId(userId, startOffset);
-        if(productDtoList != null) {
-            return ResponseEntity.ok(productDtoList);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<ResProductDto>> getProductListBySellerId(@PathVariable("userId") Long userId, @PathVariable Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getProductListByUserId(userId, startOffset));
     }
 
     @GetMapping("/image") // 스토리지에 저장된 실제 이미지 파일을 반환: 이미지 이름은 URL 쿼리 형식으로 입력받아야 한다.

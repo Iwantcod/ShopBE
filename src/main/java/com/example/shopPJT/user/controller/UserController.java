@@ -36,10 +36,10 @@ public class UserController {
 
     @PatchMapping // 자기 자신의 User 테이블 수정
     @Operation(summary = "자신의 회원 정보 수정", description = "jwt의 userId 정보에 해당하는 회원의 정보 수정")
-    public ResponseEntity<?> updateUser(@Valid @ModelAttribute UpdateUserDto updateUserDto) {
+    public ResponseEntity<Void> updateUser(@Valid @ModelAttribute UpdateUserDto updateUserDto) {
         if(userService.updateUser(updateUserDto)) {
 //            return ResponseEntity.status(302).header(HttpHeaders.LOCATION, clientUrl + "/auth/login").build();
-            return ResponseEntity.ok().body("회원 정보가 수정되었습니다.");
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -48,7 +48,7 @@ public class UserController {
 
     @GetMapping("/my-info") // 자신의 정보 확인(JWT 내부의 유저 식별자로 User 테이블 조회)
     @Operation(summary = "자신의 회원 정보 조회", description = "jwt의 userId 정보에 해당하는 회원의 정보 조회")
-    public ResponseEntity<?> getMyInfo() {
+    public ResponseEntity<ResUserDto> getMyInfo() {
         ResUserDto resUserDto = userService.getMyInfo();
         if(resUserDto != null) {
             return ResponseEntity.ok().body(resUserDto);
@@ -59,7 +59,7 @@ public class UserController {
 
     @GetMapping("/{userId}") // 회원 식별자로 User 테이블 조회
     @Operation(summary = "식별자로 특정 회원 정보 조회")
-    public ResponseEntity<?> getUserInfoById(@PathVariable("userId") Long userId) {
+    public ResponseEntity<ResUserDto> getUserInfoById(@PathVariable("userId") Long userId) {
         ResUserDto resUserDto = userService.getUserInfoById(userId);
         if(resUserDto != null) {
             return ResponseEntity.ok().body(resUserDto);
@@ -70,7 +70,7 @@ public class UserController {
 
     @GetMapping("/email/{email}") // 회원 이메일로 User 테이블 조회
     @Operation(summary = "이메일 주소로 특정 회원 정보 조회")
-    public ResponseEntity<?> getUserInfoByEmail(@PathVariable("email") String email) {
+    public ResponseEntity<ResUserDto> getUserInfoByEmail(@PathVariable("email") String email) {
         ResUserDto resUserDto = userService.getUserInfoByEmail(email);
         if(resUserDto != null) {
             return ResponseEntity.ok().body(resUserDto);
@@ -81,7 +81,7 @@ public class UserController {
 
     @PatchMapping("/off") // JWT 내부의 회원 식별자에 해당하는 회원을 '삭제(탈퇴)' 처리
     @Operation(summary = "자신의 계정 탈퇴 처리", description = "jwt 내부의 회원 식별자에 해당하는 회원을 삭제(탈퇴) 처리")
-    public ResponseEntity<?> userDeleteTrue() {
+    public ResponseEntity<Void> userDeleteTrue() {
         Long userId = AuthUtil.getSecurityContextUserId();
         String role = AuthUtil.getCurrentUserAuthority();
 
@@ -93,7 +93,7 @@ public class UserController {
         }
 
         if(userService.userDeleteTrue(userId)) {
-            return ResponseEntity.ok().body("회원 탈퇴되었습니다.");
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();
         }

@@ -23,24 +23,13 @@ public class CategoryController {
 
     @GetMapping("/{categoryId}") // 카테고리 식별자로 카테고리 조회
     @Operation(summary = "카테고리 식별자로 카테고리 조회")
-    public ResponseEntity<?> getCategoryById(@PathVariable("categoryId") Integer categoryId) {
-        ResCategoryDto resCategoryDto = categoryService.getCategoryById(categoryId);
-        if(resCategoryDto == null){
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(resCategoryDto);
-        }
+    public ResponseEntity<ResCategoryDto> getCategoryById(@PathVariable("categoryId") Integer categoryId) {
+        return ResponseEntity.ok().body(categoryService.getCategoryById(categoryId));
     }
 
     @GetMapping("/name/{categoryName}") // 카테고리 이름으로 카테고리 조회
     @Operation(summary = "카테고리 이름으로 카테고리 조회")
-    public ResponseEntity<?> getCategoryByName(@PathVariable("categoryName") String categoryName) {
-        ResCategoryDto resCategoryDto = categoryService.getCategoryByName(categoryName);
-        if(resCategoryDto == null){
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(resCategoryDto);
-        }
-
+    public ResponseEntity<ResCategoryDto> getCategoryByName(@PathVariable("categoryName") String categoryName) {
+        return ResponseEntity.ok().body(categoryService.getCategoryByName(categoryName));
     }
 }

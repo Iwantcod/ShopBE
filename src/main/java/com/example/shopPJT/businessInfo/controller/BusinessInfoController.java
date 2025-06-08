@@ -21,7 +21,7 @@ public class BusinessInfoController {
 
     @GetMapping("/{userId}") // 회원 식별자를 이용해서 BusinessInfo 테이블에서 행 조회
     @Operation(summary = "회원 식별자를 이용하여 BusinessInfo 조회")
-    public ResponseEntity<?> getBusinessInfo(@PathVariable Long userId) {
+    public ResponseEntity<ResBusinessInfoDto> getBusinessInfo(@PathVariable Long userId) {
         ResBusinessInfoDto resBusinessInfoDto = businessInfoService.getBusinessInfoByUserId(userId);
         if (resBusinessInfoDto == null) {
             return ResponseEntity.notFound().build();
@@ -33,7 +33,7 @@ public class BusinessInfoController {
 
     @PatchMapping // BusinessInfo 테이블 수정: 자기 자신만 가능
     @Operation(summary = "자신의 BusinessInfo 정보 수정", description = "사업자명이 변경되면 판매자의 유저네임 또한 동시에 변경됩니다.")
-    public ResponseEntity<?> updateBusinessInfo(@ModelAttribute ReqBusinessInfoDto reqBusinessInfoDto) {
+    public ResponseEntity<Void> updateBusinessInfo(@ModelAttribute ReqBusinessInfoDto reqBusinessInfoDto) {
         if(businessInfoService.updateBusinessInfo(reqBusinessInfoDto)) {
             return ResponseEntity.ok().build();
         } else {

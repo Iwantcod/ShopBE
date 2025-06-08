@@ -1,4 +1,4 @@
-package com.example.shopPJT.orderItems.contoller;
+package com.example.shopPJT.orderItems.controller;
 
 import com.example.shopPJT.orderItems.dto.ResOrderItemsDto;
 import com.example.shopPJT.orderItems.service.OrderItemsService;
