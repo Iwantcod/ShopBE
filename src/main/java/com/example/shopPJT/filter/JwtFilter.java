@@ -67,7 +67,7 @@ public class JwtFilter extends OncePerRequestFilter {
         AuthDto authDto = new AuthDto();
         authDto.setUserId(userId);
         authDto.setRoleType(role);
-        authDto.setPassword("tmpPW");
+        authDto.setPassword("");
 
         // AuthDto를 JwtUserDetails에 담아 인증 토큰을 생성하기 위한 준비물을 만든다.
         JwtUserDetails jwtUserDetails = new JwtUserDetails(authDto);

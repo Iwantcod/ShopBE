@@ -20,6 +20,13 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
+    @GetMapping("/write-permission/{productId}")
+    @Operation(summary = "리뷰 작성 권한 확인", description = "상품 구매자만 리뷰를 작성할 수 있습니다.")
+    public ResponseEntity<?> writePermission(@PathVariable Long productId) {
+        reviewService.checkWritePermission(productId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping
     @Operation(summary = "리뷰 작성", description = "parentReviewId는 필수 값이 아닙니다.")
     public ResponseEntity<?> addReview(@ModelAttribute @Valid ReqReviewDto reqReviewDto) {

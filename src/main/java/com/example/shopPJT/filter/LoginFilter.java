@@ -1,8 +1,6 @@
 package com.example.shopPJT.filter;
 
 import com.example.shopPJT.user.details.JwtUserDetails;
-import com.example.shopPJT.user.entity.User;
-import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.user.service.UserService;
 import com.example.shopPJT.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -10,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -29,6 +27,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    @Value("${app.client-url}")
+    private String clientUrl;
 
     public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
@@ -66,14 +66,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             log.error("User ID Not Exist: {}", userId);
         }
 
-        System.out.println("user Id: " + userId);
-        System.out.println("user Role: " + role);
-
+        response.setHeader("Auth-Role", role); // 유저 권한
+        response.setHeader("Auth-User-Id", String.valueOf(jwtUserDetails.getUserId())); // 유저 식별자
+//        response.sendRedirect(clientUrl); // 홈페이지로 리다이렉션
     }
 
     @Override // 로그인 실패 시 수행되는 메소드
     protected void unsuccessfulAuthentication(HttpServletRequest req, HttpServletResponse res, AuthenticationException failed) {
         res.setStatus(401);
     }
-
 }

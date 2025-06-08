@@ -49,8 +49,9 @@ public class UserController {
     @GetMapping("/my-info") // 자신의 정보 확인(JWT 내부의 유저 식별자로 User 테이블 조회)
     @Operation(summary = "자신의 회원 정보 조회", description = "jwt의 userId 정보에 해당하는 회원의 정보 조회")
     public ResponseEntity<?> getMyInfo() {
-        if(userService.getMyInfo() != null) {
-            return ResponseEntity.ok().body(userService.getMyInfo());
+        ResUserDto resUserDto = userService.getMyInfo();
+        if(resUserDto != null) {
+            return ResponseEntity.ok().body(resUserDto);
         } else {
             return ResponseEntity.notFound().build();
         }

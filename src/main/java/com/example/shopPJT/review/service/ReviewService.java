@@ -41,15 +41,36 @@ public class ReviewService {
         this.orderItemsRepository = orderItemsRepository;
     }
 
+    @Transactional(readOnly = true) // 리뷰 작성 권한 확인: 유저의 주문 내역에 해당 상품이 존재하는지
+    public void checkWritePermission(Long productId) {
+        Long userId = AuthUtil.getSecurityContextUserId();
+        if(userId == null) {
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
+        }
+        // 상품 구매자가 아닌 경우 예외 처리
+        if(orderItemsRepository.checkProductPurchase(productId, userId) == 0) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+    }
+
+    @Transactional(readOnly = true) // 판매자의 리뷰 답변 작성 권한 확인
+    public void checkAnswerWritePermission(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
+        Long userId = AuthUtil.getSecurityContextUserId();
+        if(userId == null) {
+            throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
+        }
+        if(!product.getUser().getId().equals(userId)) {
+            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
+        }
+    }
+
     @Transactional
     public void addReview(ReqReviewDto reqReviewDto) {
         Long userId = AuthUtil.getSecurityContextUserId();
         if(userId == null) {
             throw new ApplicationException(ApplicationError.USERID_NOT_FOUND);
-        }
-        // 상품 구매자만 리뷰 작성 가능
-        if(orderItemsRepository.checkProductPurchase(reqReviewDto.getProductId(), userId) == 0) {
-            throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new ApplicationException(ApplicationError.USER_NOT_FOUND));
@@ -74,8 +95,9 @@ public class ReviewService {
             }
             Review parent = reviewRepository.findById(reqReviewDto.getParentReviewId()).orElseThrow(() ->
                     new ApplicationException(ApplicationError.PARENT_REVIEW_NOT_FOUND));
-            if(!parent.getProduct().getId().equals(review.getProduct().getId())) {
+            if(!parent.getProduct().getId().equals(review.getProduct().getId()) || !product.getUser().getId().equals(userId)) {
                 // 부모 리뷰가 다른 상품의 리뷰인 경우, 예외 발생(즉, 잘못된 값 입력된 경우)
+                // 다른 상품 리뷰에 답변을 작성하려는 요청인 경우 예외 발생(즉, 잘못된 값 입력된 경우)
                 throw new ApplicationException(ApplicationError.WRONG_REQUEST);
             }
             review.setParentReview(parent);
@@ -85,6 +107,7 @@ public class ReviewService {
             review.setMaterializedPath(String.valueOf(review.getId())); // 리뷰 경로 저장
         }
     }
+
 
     private ResReviewDto toDto(Review review) {
         ResReviewDto resReviewDto = new ResReviewDto();

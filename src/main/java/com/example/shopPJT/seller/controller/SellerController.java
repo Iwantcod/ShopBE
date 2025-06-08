@@ -3,6 +3,7 @@ package com.example.shopPJT.seller.controller;
 import com.example.shopPJT.product.dto.ReqProductDto;
 import com.example.shopPJT.product.dto.ReqUpdateProductInfoDto;
 import com.example.shopPJT.product.service.ProductService;
+import com.example.shopPJT.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,9 +19,12 @@ import java.io.IOException;
 @Tag(name = "판매자 API", description = "요청에 담긴 jwt의 내부 권한이 ADMIN, SELLER인 경우에만 응답")
 public class SellerController {
     private final ProductService productService;
+    private final ReviewService reviewService;
+
     @Autowired
-    public SellerController(ProductService productService) {
+    public SellerController(ProductService productService, ReviewService reviewService) {
         this.productService = productService;
+        this.reviewService = reviewService;
     }
 
     // 상품 추가
@@ -64,5 +68,12 @@ public class SellerController {
     public ResponseEntity<?> decreaseProductInven(@PathVariable Long productId, @PathVariable Integer quantity) {
         productService.modifyInventory(productId, quantity, Boolean.FALSE);
         return ResponseEntity.ok().body("상품 재고 수량이 삭제되었습니다.");
+    }
+
+    @GetMapping("/review/write-permission/{productId}")
+    @Operation(summary = "리뷰 답글 작성 권한 확인", description = "자신이 게시한 상품의 리뷰에만 답글을 작성할 수 있습니다.")
+    public ResponseEntity<?> reviewWritePermission(@PathVariable("productId") Long productId) {
+        reviewService.checkAnswerWritePermission(productId);
+        return ResponseEntity.ok().build();
     }
 }

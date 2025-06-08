@@ -87,9 +87,10 @@ public class SecurityConfig {
                         // 3600초(1시간)
                         config.setMaxAge(3600L);
 
-                        // CORS 응답에서 노출될 헤더를 설정. 클라이언트에서 `Access`, 'Refresh' 헤더에 접근할 수 있도록 허용
-                        // List를 인자로 받는다.
-                        config.setExposedHeaders(List.of("Access", "Refresh"));
+//                        // CORS 응답에서 노출될 헤더를 설정. 클라이언트에서 `Access`, 'Refresh' 헤더에 접근할 수 있도록 허용
+//                        // List를 인자로 받는다.
+//                        config.setExposedHeaders(List.of("Access", "Refresh"));
+                        config.setExposedHeaders(List.of("Auth-Role", "Auth-User-Id"));
                         return config;
                     }
                 }))
