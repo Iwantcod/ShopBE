@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class AuthController {
     }
 
     // 기본 회원가입: 일반 사용자
-    @PostMapping("/join")
+    @PostMapping(value = "/join", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "일반 사용자 회원가입", description = "일반 사용자의 유저네임은 중복될 수 없습니다.")
     public ResponseEntity<Void> join(@ModelAttribute @Valid JoinUserDto joinUserDto) {
         if(userService.join(joinUserDto)) {
@@ -40,7 +41,7 @@ public class AuthController {
     }
 
     // 소셜 가입자 추가 정보 입력
-    @PostMapping("/join-complete")
+    @PostMapping(value = "/join-complete", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "OAuth2 가입자 추가 정보 저장")
     public ResponseEntity<Void> joinComplete(@ModelAttribute @Valid JoinCompleteDto joinCompleteDto, HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("incompleteMemberId");
@@ -50,7 +51,7 @@ public class AuthController {
     }
 
     // 기본 회원가입: 판매자 유형
-    @PostMapping("/join/seller")
+    @PostMapping(value = "/join/seller", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "판매자 회원가입", description = "사업자명은 판매자의 유저네임이 됩니다. 판매자의 경우 유저네임 중복을 허용합니다.")
     public ResponseEntity<Void> joinSeller(@ModelAttribute @Valid JoinSellerDto joinSellerDto) {
         if(userService.joinSeller(joinSellerDto)) {

@@ -49,6 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setEmail(oAuth2UserInfo.getEmail());
             user.setName(oAuth2UserInfo.getName());
             user.setPassword("OAuth2User");
+            user.setUsername(oAuth2UserInfo.getName()); // 본명을 유저네임으로 임시 저장 -> 추후 수정
             user.setRole(RoleType.ROLE_USER);
             userRepository.save(user);
         }

@@ -16,7 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.id = :productId")
     Optional<Product> findByIdWithPessimisticLock(@Param("productId") Long productId);
 
-
     @Lock(LockModeType.PESSIMISTIC_WRITE) // 상품 식별자 리스트를 인자로 받고, 식별자 오름차순 순서대로 비관적 락을 획득한다.
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds ORDER BY p.id ASC")
     List<Product> findByIdsWithPessimisticLock(List<Long> productIds);
@@ -32,4 +31,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // '삭제' 상태가 아닌 상품 정보 10개 페이징 조회
     @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.isDeleted = false AND p.category.id = :categoryId")
     Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Integer categoryId);
+
+    @Query("""
+        SELECT p FROM Product p
+        JOIN FETCH p.user
+        WHERE (p.name LIKE CONCAT('%', :key, '%'))
+        AND p.isDeleted = false
+        """)
+    Slice<Product> findAllByNameKey(Pageable pageable, @Param("key") String key);
 }

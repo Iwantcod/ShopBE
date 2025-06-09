@@ -1,5 +1,6 @@
 package com.example.shopPJT.benchmark.service;
 
+import com.example.shopPJT.benchmark.dto.BenchMarkDto;
 import com.example.shopPJT.benchmark.dto.ReqBenchMarkDto;
 import com.example.shopPJT.benchmark.dto.ResBenchMarkDto;
 import com.example.shopPJT.benchmark.entity.BenchMark;
@@ -58,17 +59,17 @@ public class BenchMarkService {
     }
 
     @Transactional // 성능 수치 값만 수정 가능
-    public void updateBenchMark(Long benchMarkId, ReqBenchMarkDto reqBenchMarkDto) {
+    public void updateBenchMark(Long benchMarkId, BenchMarkDto benchMarkDto) {
         BenchMark benchMark = benchMarkRepository.findById(benchMarkId).orElseThrow(() ->
                 new ApplicationException(ApplicationError.BENCHMARK_NOT_FOUND));
-        if(reqBenchMarkDto.getAvgFrame1() != null){
-            benchMark.setAvgFrame1(reqBenchMarkDto.getAvgFrame1());
+        if(benchMarkDto.getAvgFrame1() != null){
+            benchMark.setAvgFrame1(benchMark.getAvgFrame1());
         }
-        if(reqBenchMarkDto.getAvgFrame2() != null){
-            benchMark.setAvgFrame2(reqBenchMarkDto.getAvgFrame2());
+        if(benchMarkDto.getAvgFrame2() != null){
+            benchMark.setAvgFrame2(benchMark.getAvgFrame2());
         }
-        if(reqBenchMarkDto.getAvgFrame3() != null){
-            benchMark.setAvgFrame3(reqBenchMarkDto.getAvgFrame3());
+        if(benchMarkDto.getAvgFrame3() != null){
+            benchMark.setAvgFrame3(benchMark.getAvgFrame3());
         }
     }
 

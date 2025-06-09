@@ -1,5 +1,6 @@
 package com.example.shopPJT.user.service;
 
+import com.example.shopPJT.businessInfo.dto.ResBusinessInfoDto;
 import com.example.shopPJT.businessInfo.entity.BusinessInfo;
 import com.example.shopPJT.businessInfo.repository.BusinessInfoRepository;
 import com.example.shopPJT.global.exception.ApplicationError;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -44,10 +46,11 @@ public class UserService {
     private ResUserDto toDto(User user) {
         ResUserDto resUserDto = new ResUserDto();
         resUserDto.setUserId(user.getId());
+        resUserDto.setUsername(user.getUsername());
         resUserDto.setName(user.getName());
         resUserDto.setEmail(user.getEmail());
         resUserDto.setPhone(user.getPhone());
-        resUserDto.setBirth(user.getBirth().toString());
+        if(user.getBirth() != null) { resUserDto.setBirth(user.getBirth().toString()); }
         resUserDto.setAddress(user.getAddress());
         resUserDto.setZipCode(user.getZipCode());
         resUserDto.setRole(user.getRole().toString());
@@ -271,18 +274,30 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public ResUserDto getUserInfoByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if(user.isEmpty()) {
+    public List<ResUserDto> getUserInfoByEmail(String email) {
+        List<User> userList = userRepository.findNotAdminByEmailKey(email);
+        if(userList.isEmpty()) {
             throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
+        return userList.stream().map(this::toDto).toList();
+    }
 
-        if(user.get().getIsDeleted()) {
-            // '삭제처리'된 회원의 정보는 제공하지 않는다.
-            throw new ApplicationException(ApplicationError.USER_DELETED);
+    @Transactional(readOnly = true) // 유저네임 키워드로 일반 회원 조회
+    public List<ResUserDto> getUserListByUsernameKey(String usernameKey) {
+        List<User> userList = userRepository.findUserByUsernameKey(usernameKey);
+        if(userList.isEmpty()) {
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
         }
+        return userList.stream().map(this::toDto).toList();
+    }
 
-        return toDto(user.get());
+    @Transactional(readOnly = true)
+    public List<ResUserDto> getSellerListByUsernameKey(String usernameKey) {
+        List<User> userList = userRepository.findSellerByUsernameKey(usernameKey);
+        if(userList.isEmpty()) {
+            throw new ApplicationException(ApplicationError.USER_NOT_FOUND);
+        }
+        return userList.stream().map(this::toDto).toList();
     }
 
     @Transactional // 자기 자신 삭제(탈퇴) 처리

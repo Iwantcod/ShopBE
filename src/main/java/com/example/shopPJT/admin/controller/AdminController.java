@@ -1,5 +1,6 @@
 package com.example.shopPJT.admin.controller;
 
+import com.example.shopPJT.benchmark.dto.BenchMarkDto;
 import com.example.shopPJT.benchmark.dto.ReqBenchMarkDto;
 import com.example.shopPJT.benchmark.service.BenchMarkService;
 import com.example.shopPJT.businessInfo.dto.ResBusinessInfoDto;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -78,8 +80,14 @@ public class AdminController {
         }
     }
 
+    @PostMapping(value = "/category", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "카테고리 추가")
+    public ResponseEntity<Void> createCategory(@ModelAttribute ReqCategoryDto reqCategoryDto) {
+        categoryService.createCategory(reqCategoryDto);
+        return ResponseEntity.ok().build();
+    }
 
-    @PatchMapping("/category")
+    @PatchMapping(value = "/category", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "특정 카테고리의 이름 변경")
     public ResponseEntity<Void> updateCategory(@Valid @ModelAttribute ReqCategoryDto reqCategoryDto) {
         if(categoryService.updateCategory(reqCategoryDto)) {
@@ -119,17 +127,17 @@ public class AdminController {
     }
 
 
-    @PostMapping("/benchmark")
+    @PostMapping(value = "/benchmark", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "벤치마크 정보 추가")
-    public ResponseEntity<Void> addBenchMark(@RequestBody ReqBenchMarkDto reqBenchMarkDto) {
+    public ResponseEntity<Void> addBenchMark(@ModelAttribute ReqBenchMarkDto reqBenchMarkDto) {
         benchMarkService.addBenchMark(reqBenchMarkDto);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/benchmark/{benchMarkId}")
+    @PatchMapping(value = "/benchmark/{benchMarkId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "벤치마크 정보 수정", description = "수치 값만 수정할 수 있습니다.")
-    public ResponseEntity<Void> updateBenchMark(@PathVariable Long benchMarkId, @RequestBody ReqBenchMarkDto reqBenchMarkDto) {
-        benchMarkService.updateBenchMark(benchMarkId, reqBenchMarkDto);
+    public ResponseEntity<Void> updateBenchMark(@PathVariable Long benchMarkId, @ModelAttribute BenchMarkDto benchMarkDto) {
+        benchMarkService.updateBenchMark(benchMarkId, benchMarkDto);
         return ResponseEntity.ok().build();
     }
 

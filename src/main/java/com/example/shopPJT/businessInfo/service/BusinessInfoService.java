@@ -17,8 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BusinessInfoService {
@@ -122,5 +124,11 @@ public class BusinessInfoService {
         Slice<BusinessInfo> businessInfos = businessInfoRepository.findByIsApprovalFalsePaging(pageable);
         Slice<ResBusinessInfoDto> result = businessInfos.map(this::toDto);
         return result.getContent();
+    }
+
+    @Transactional(readOnly = true) // 상호명으로 사업자 검색
+    public List<ResBusinessInfoDto> findByBusinessName(String businessName) {
+        List<BusinessInfo> resBusinessInfoDtoList = businessInfoRepository.findByBusinessNameContainingIgnoreCase(businessName);
+        return resBusinessInfoDtoList.stream().map(this::toDto).toList();
     }
 }

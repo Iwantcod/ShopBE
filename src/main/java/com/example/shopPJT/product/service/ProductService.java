@@ -167,6 +167,22 @@ public class ProductService {
         return toDto(product);
     }
 
+    @Transactional(readOnly = true)
+    public List<ResProductDto> getProductByNameKey(String nameKey, Integer startOffset) {
+        if(startOffset == null) {
+            startOffset = 0;
+        }
+
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
+        Slice<Product> productList = productRepository.findAllByNameKey(pageable, nameKey);
+        if(productList.isEmpty()){
+            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
+        }
+        Slice<ResProductDto> dtoPage = productList.map(this::toDto);
+        return dtoPage.getContent();
+    }
+
     @Transactional(readOnly = true) // 특정 판매자가 게시한 상품을 모두 조회
     public List<ResProductDto> getProductListByUserId(Long userId, Integer startOffset) {
         if(userId == null) {

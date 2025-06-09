@@ -8,12 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReqBenchMarkDto {
+public class ReqBenchMarkDto extends BenchMarkDto {
     @NotNull(message = "CPU 식별자는 필수 정보입니다.")
     private Long cpuSpecId;
     @NotNull(message = "GRAPHIC 식별자는 필수 정보입니다.")
     private Long graphicSpecId;
-    private Integer avgFrame1;
-    private Integer avgFrame2;
-    private Integer avgFrame3;
 }

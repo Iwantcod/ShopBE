@@ -6,6 +6,7 @@ import com.example.shopPJT.businessInfo.service.BusinessInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class BusinessInfoController {
     }
 
 
-    @PatchMapping // BusinessInfo 테이블 수정: 자기 자신만 가능
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // BusinessInfo 테이블 수정: 자기 자신만 가능
     @Operation(summary = "자신의 BusinessInfo 정보 수정", description = "사업자명이 변경되면 판매자의 유저네임 또한 동시에 변경됩니다.")
     public ResponseEntity<Void> updateBusinessInfo(@ModelAttribute ReqBusinessInfoDto reqBusinessInfoDto) {
         if(businessInfoService.updateBusinessInfo(reqBusinessInfoDto)) {

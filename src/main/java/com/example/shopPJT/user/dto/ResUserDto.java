@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ResUserDto {
     private Long userId;
+    private String username;
     private String email;
     private String name;
     private String birth;

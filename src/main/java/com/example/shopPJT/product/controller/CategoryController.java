@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/category")
 @Tag(name = "카테고리 API")
@@ -31,5 +33,11 @@ public class CategoryController {
     @Operation(summary = "카테고리 이름으로 카테고리 조회")
     public ResponseEntity<ResCategoryDto> getCategoryByName(@PathVariable("categoryName") String categoryName) {
         return ResponseEntity.ok().body(categoryService.getCategoryByName(categoryName));
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "모든 카테고리 정보 조회")
+    public ResponseEntity<List<ResCategoryDto>> getAllCategory() {
+        return ResponseEntity.ok().body(categoryService.getAllCategoryList());
     }
 }

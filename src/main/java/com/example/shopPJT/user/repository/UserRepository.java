@@ -6,13 +6,33 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);
-    Optional<User> findByEmail(String email);
+
+    @Query("SELECT u FROM USERS u WHERE u.email = :email AND u.isDeleted = false")
+    Optional<User> findByEmail(@Param("email") String email);
+
+    @Query("""
+        SELECT u FROM USERS u
+        WHERE (u.email LIKE CONCAT('%', :email, '%')) AND u.isDeleted = false AND u.role != 'ROLE_ADMIN'
+    """)
+    List<User> findNotAdminByEmailKey(@Param("email") String email);
+
+    @Query("""
+        SELECT u FROM USERS u
+        WHERE (u.username LIKE CONCAT('%',:username,'%')) AND u.isDeleted = false AND u.role = 'ROLE_USER'
+    """)
+    List<User> findUserByUsernameKey(@Param("username") String username);
+    @Query("""
+        SELECT u FROM USERS u
+        WHERE (u.username LIKE CONCAT('%',:username,'%')) AND u.isDeleted = false AND u.role = 'ROLE_SELLER'
+    """)
+    List<User> findSellerByUsernameKey(@Param("username") String username);
     Optional<User> findByoAuth2Id(String oAuth2Id);
 
 

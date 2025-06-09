@@ -63,6 +63,12 @@ public class ProductController {
         return ResponseEntity.ok().body(productService.getProductById(productId));
     }
 
+    @GetMapping("/name/{productNameKey}/{startOffset}")
+    @Operation(summary = "상품 이름 키워드로 상품 조회", description = "카테고리 구분없이 검색, 삭제된 상품은 조회하지 않는다.")
+    public ResponseEntity<List<ResProductDto>> getProductByNameKey(@PathVariable("productNameKey") String productNameKey, @PathVariable("startOffset") Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getProductByNameKey(productNameKey, startOffset));
+    }
+
     @GetMapping("/seller/{userId}/{startOffset}")
     @Operation(summary = "판매자 식별자를 통해 특정 판매자가 업로드한 모든 상품 조회", description = "10개씩 페이징하여 조회 결과 제공")
     public ResponseEntity<List<ResProductDto>> getProductListBySellerId(@PathVariable("userId") Long userId, @PathVariable Integer startOffset) {

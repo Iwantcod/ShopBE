@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class ReviewController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "리뷰 작성", description = "parentReviewId는 필수 값이 아닙니다.")
     public ResponseEntity<Void> addReview(@ModelAttribute @Valid ReqReviewDto reqReviewDto) {
         reviewService.addReview(reqReviewDto);
@@ -43,7 +44,7 @@ public class ReviewController {
         return ResponseEntity.ok().body(reviewService.getReviewsPaging(productId, startOffset));
     }
 
-    @PatchMapping("/{reviewId}")
+    @PatchMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "리뷰 수정", description = "자신이 작성한 리뷰만 수정할 수 있습니다.")
     public ResponseEntity<Void> updateReview(@PathVariable("reviewId") Long reviewId ,@ModelAttribute @Valid ReqUpdateReviewDto reqUpdateReviewDto) {
         reviewService.updateReview(reviewId,reqUpdateReviewDto);

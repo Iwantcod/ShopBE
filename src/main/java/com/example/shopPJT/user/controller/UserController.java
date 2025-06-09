@@ -16,8 +16,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -34,7 +37,7 @@ public class UserController {
     }
 
 
-    @PatchMapping // 자기 자신의 User 테이블 수정
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // 자기 자신의 User 테이블 수정
     @Operation(summary = "자신의 회원 정보 수정", description = "jwt의 userId 정보에 해당하는 회원의 정보 수정")
     public ResponseEntity<Void> updateUser(@Valid @ModelAttribute UpdateUserDto updateUserDto) {
         if(userService.updateUser(updateUserDto)) {
@@ -68,15 +71,22 @@ public class UserController {
         }
     }
 
-    @GetMapping("/email/{email}") // 회원 이메일로 User 테이블 조회
-    @Operation(summary = "이메일 주소로 특정 회원 정보 조회")
-    public ResponseEntity<ResUserDto> getUserInfoByEmail(@PathVariable("email") String email) {
-        ResUserDto resUserDto = userService.getUserInfoByEmail(email);
-        if(resUserDto != null) {
-            return ResponseEntity.ok().body(resUserDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/email/{emailKey}") // 회원 이메일로 User 테이블 조회
+    @Operation(summary = "이메일 주소 키워드로 특정 회원 정보 조회", description = "관리자 정보는 조회되지 않습니다.")
+    public ResponseEntity<List<ResUserDto>> getUserInfoByEmail(@PathVariable("emailKey") String key) {
+        return ResponseEntity.ok().body(userService.getUserInfoByEmail(key));
+    }
+
+    @GetMapping("/username/user/{userNameKey}") // 유저네임 키워드로 일반 회원 조회
+    @Operation(summary = "유저네임 키워드로 일반 회원 정보 조회")
+    public ResponseEntity<List<ResUserDto>> getUserInfoByUsername(@PathVariable("userNameKey") String key) {
+        return ResponseEntity.ok().body(userService.getUserListByUsernameKey(key));
+    }
+
+    @GetMapping("/username/seller/{userNameKey}") // 유저네임 키워드로 판매자 조회
+    @Operation(summary = "유저네임(상호명) 키워드로 판매자 회원 정보 조회")
+    public ResponseEntity<List<ResUserDto>> getSellerInfoByUsername(@PathVariable("userNameKey") String key) {
+        return ResponseEntity.ok().body(userService.getSellerListByUsernameKey(key));
     }
 
     @PatchMapping("/off") // JWT 내부의 회원 식별자에 해당하는 회원을 '삭제(탈퇴)' 처리
