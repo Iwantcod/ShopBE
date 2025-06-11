@@ -22,8 +22,8 @@ public class ReqProductDto {
     private Integer price;
     @NotNull(message = "재고 수량 정보는 필수 정보입니다.") @Min(1)
     private Integer inventory;
-    @NotBlank(message = "상품 대표 이미지는 필수입니다.")
+    @NotNull(message = "상품 대표 이미지는 필수입니다.")
     private MultipartFile productImage; // 실제 이미지 파일(바이트코드)을 받는다.
-    @NotBlank(message = "상품 상세 페이지 이미지는 필수입니다.")
+    @NotNull(message = "상품 상세 페이지 이미지는 필수입니다.")
     private MultipartFile descriptionImage; // 실제 이미지 파일(바이트코드)을 받는다.
 }

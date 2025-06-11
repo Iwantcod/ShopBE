@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -56,9 +58,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority grantedAuthority = iterator.next();
         String role = grantedAuthority.getAuthority();
 
-        response.addCookie(jwtUtil.createAccessToken(userId, role));
-        Cookie refreshToken = jwtUtil.createRefreshToken(userId, role);
-        response.addCookie(refreshToken);
+//        response.addCookie(jwtUtil.createAccessToken(userId, role));
+        ResponseCookie access = jwtUtil.createAccessToken(userId, role);
+        response.addHeader(HttpHeaders.SET_COOKIE, access.toString());
+
+        ResponseCookie refreshToken = jwtUtil.createRefreshToken(userId, role);
+//        response.addCookie(refreshToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshToken.toString());
 
         // 이미 로그인 시 유저 정보를 검증했으니, 이 메소드에서는 '업데이트' 쿼리만 호출한다.
         if(userService.setRefreshToken(userId, refreshToken) != 1) {

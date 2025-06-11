@@ -244,7 +244,7 @@ public class ProductService {
         }
 
         // 'CategoryName'에 해당하는 테이블에서 productId를 통해 조회를 했을 때 결과물이 있으면 true, 없으면 false
-        return productSpecServiceFactory.getStrategy(categoryName).isExist(productId);
+        return productSpecServiceFactory.getStrategy(categoryName.toLowerCase()).isExist(productId);
     }
 
     // 상품 정보 추가

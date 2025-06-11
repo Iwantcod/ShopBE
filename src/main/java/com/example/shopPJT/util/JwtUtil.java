@@ -8,11 +8,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,15 +26,21 @@ public class JwtUtil {
     private final SecretKey refreshKey;
     private final Long refreshExpiration;
     private final UserRepository userRepository;
+    @Value("${app.cookie-samesite}")
+    private String cookieSamesite;
+    @Value("${app.cookie-domain}")
+    private String cookieDomain;
 
     public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") Long expiration
-            , @Value("${jwt.refresh-secret}") String refreshSecret, @Value("${jwt.refresh-expiration}") Long refreshExpiration, UserRepository userRepository) {
+            , @Value("${jwt.refresh-secret}") String refreshSecret, @Value("${jwt.refresh-expiration}") Long refreshExpiration
+            , UserRepository userRepository) {
 
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
         this.refreshKey = new SecretKeySpec(refreshSecret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
         this.expiration = expiration;
         this.refreshExpiration = refreshExpiration;
         this.userRepository = userRepository;
+
     }
 
     // 토큰을 SecretKey로 파싱하여 Claims를 얻어내는 메소드
@@ -95,7 +103,7 @@ public class JwtUtil {
     }
 
     // access token 발급
-    public Cookie createAccessToken(Long userId, String role) {
+    public ResponseCookie createAccessToken(Long userId, String role) {
         String access = Jwts.builder()
                 .claim("userId", userId) // userId
                 .claim("role", role)
@@ -104,15 +112,22 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
-        Cookie accessToken = new Cookie("access_token", access);
-        accessToken.setHttpOnly(true); // JS에서의 접근 불가 옵션
-        accessToken.setPath("/"); // 애플리케이션 모든 경로에서 서버로 전송
-        accessToken.setMaxAge((int)(expiration/1000)); // 쿠키 유효시간: 30분(초 단위이므로 나누기 1천을 했습니다.)
-        return accessToken;
+//        Cookie accessToken = new Cookie("access_token", access);
+//        accessToken.setHttpOnly(true); // JS에서의 접근 불가 옵션
+//        accessToken.setPath("/"); // 애플리케이션 모든 경로에서 서버로 전송
+//        accessToken.setMaxAge((int)(expiration/1000)); // 쿠키 유효시간: 30분(초 단위이므로 나누기 1천을 했습니다.)
+//        accessToken.setSecure(true);
+//        accessToken.setDomain("www.andypjt.site");
+//        return accessToken;
+
+        return ResponseCookie.from("access_token", access)
+                .httpOnly(true).secure(true).sameSite(cookieSamesite)
+                .domain(cookieDomain).path("/")
+                .maxAge(expiration/1000).build();
     }
 
     // refresh token 발급
-    public Cookie createRefreshToken(Long userId, String role) {
+    public ResponseCookie createRefreshToken(Long userId, String role) {
         String refresh = Jwts.builder()
                 .claim("userId", userId)
                 .claim("role", role)
@@ -122,11 +137,17 @@ public class JwtUtil {
                 .signWith(refreshKey, SignatureAlgorithm.HS256)
                 .compact();
 
-        Cookie refreshToken = new Cookie("refresh_token", refresh);
-        refreshToken.setHttpOnly(true);
-        refreshToken.setPath("/api/user/refresh"); // refresh token은 해당 경로에 대해서만 서버로 전송
-        refreshToken.setMaxAge((int)(refreshExpiration/1000));
-        return refreshToken;
+//        Cookie refreshToken = new Cookie("refresh_token", refresh);
+//        refreshToken.setHttpOnly(true);
+//        refreshToken.setPath("/api/auth/refresh"); // refresh token은 해당 경로에 대해서만 서버로 전송
+//        refreshToken.setMaxAge((int)(refreshExpiration/1000));
+//        refreshToken.setSecure(true);
+//        refreshToken.setDomain("www.andypjt.site");
+//        return refreshToken;
+        return ResponseCookie.from("refresh_token", refresh)
+                .httpOnly(true).secure(true).sameSite(cookieSamesite)
+                .domain(cookieDomain).path("/api/auth/refresh")
+                .maxAge(refreshExpiration/1000).build();
     }
 
     // 특정 유저가 서버로 전송한 refresh token값이 해당 유저의 테이블의 refresh token 값과 일치하는지 검증
@@ -137,5 +158,33 @@ public class JwtUtil {
         }
 
         return user.get().getRefreshToken().equals(refreshToken);
+    }
+
+    public ResponseCookie createMax0AccessToken() { // 수명이 0인 access token 발급
+//        Cookie accessToken = new Cookie("access_token", "");
+//        accessToken.setHttpOnly(true);
+//        accessToken.setSecure(true);
+//        accessToken.setDomain("www.andypjt.site");
+//        accessToken.setPath("/");
+//        accessToken.setMaxAge(0);
+        return ResponseCookie.from("access_token", "")
+                .httpOnly(true).secure(true).sameSite(cookieSamesite)
+                .domain(cookieDomain).path("/")
+                .maxAge(Duration.ZERO).build();
+    }
+
+    public ResponseCookie createMax0RefreshToken() { // 수명이 0인 refresh token 발급
+//        Cookie refreshToken = new Cookie("refresh_token", "");
+//        refreshToken.setHttpOnly(true);
+//        refreshToken.setPath("/api/auth/refresh");
+//        refreshToken.setMaxAge(0);
+//        refreshToken.setSecure(true);
+//        refreshToken.setDomain("www.andypjt.site");
+//        return refreshToken;
+
+        return ResponseCookie.from("refresh_token", "")
+                .httpOnly(true).secure(true).sameSite(cookieSamesite)
+                .domain(cookieDomain).path("/api/auth/refresh")
+                .maxAge(Duration.ZERO).build();
     }
 }

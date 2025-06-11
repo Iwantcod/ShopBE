@@ -1,0 +1,5 @@
+app:
+  client-url: http://localhost:5173 # 클라이언트 url
+  storage-path: /nvmestore/storage/ # 스토리지 '시작' 경로
+  cookie-samesite: None
+  cookie-domain: localhost

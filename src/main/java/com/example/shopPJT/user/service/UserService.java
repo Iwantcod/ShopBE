@@ -16,6 +16,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,7 +150,7 @@ public class UserService {
     }
 
     @Transactional
-    public Cookie[] refreshToken(Cookie[] cookies) {
+    public ResponseCookie[] refreshToken(Cookie[] cookies) {
         String refreshToken = null;
         if(cookies != null) {
             for (Cookie cookie : cookies) {
@@ -171,7 +172,7 @@ public class UserService {
         }
         String role = jwtUtil.getRefreshRole(refreshToken);
 
-        Cookie[] newCookies = new Cookie[2];
+        ResponseCookie[] newCookies = new ResponseCookie[2];
         newCookies[0] = jwtUtil.createAccessToken(userId, role);
         newCookies[1] = jwtUtil.createRefreshToken(userId, role);
 
@@ -185,7 +186,7 @@ public class UserService {
 
 
     @Transactional  // update 벌크 쿼리문을 트랜젝션 단위로 실행하기 위해 정의한 메소드: LoginFilter에서 사용하기 위해 정의
-    public int setRefreshToken(Long userId, Cookie refreshToken) {
+    public int setRefreshToken(Long userId, ResponseCookie refreshToken) {
         int result = userRepository.updateRefreshToken(userId, refreshToken.getValue());
         // 벌크 연산 후 영속성 컨텍스트 비우기: 이 트랙젝션 범위에만 국지적으로 영향을 미친다.
         entityManager.flush();

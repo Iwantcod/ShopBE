@@ -4,6 +4,7 @@ import com.example.shopPJT.user.dto.JoinCompleteDto;
 import com.example.shopPJT.user.dto.JoinSellerDto;
 import com.example.shopPJT.user.dto.JoinUserDto;
 import com.example.shopPJT.user.service.UserService;
+import com.example.shopPJT.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +26,11 @@ public class AuthController {
     private final UserService userService;
     @Value("${app.client-url}")
     private String clientUrl;
+    private JwtUtil jwtUtil;
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     // 기본 회원가입: 일반 사용자
@@ -80,13 +84,25 @@ public class AuthController {
     @GetMapping("/refresh") // Refresh Token을 이용하여 두 종류의 토큰 모두 재발급
     @Operation(summary = "토큰 모두 재발급", description = "Refresh Token을 이용, 두 종류의 토큰 모두 재발급")
     public ResponseEntity<Void> tokenRefresh(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] newCookie = userService.refreshToken(request.getCookies());
+        ResponseCookie[] newCookie = userService.refreshToken(request.getCookies());
         if(newCookie == null) {
             // 토큰 재발급 실패 시 로그인 화면으로 리다이렉션
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, clientUrl + "/auth/login").build();
         }
-        response.addCookie(newCookie[0]);
-        response.addCookie(newCookie[1]);
+        for(ResponseCookie cookie : newCookie) {
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        }
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout") // 로그아웃 메소드, 쿠키의 수명을 0으로 설정하여 클라이언트로 덮어씌움.
+    public void logout(HttpServletResponse res) {
+//        res.addCookie(jwtUtil.createMax0AccessToken());
+//        res.addCookie(jwtUtil.createMax0RefreshToken());
+        ResponseCookie access = jwtUtil.createMax0AccessToken();
+        ResponseCookie refresh = jwtUtil.createMax0RefreshToken();
+        res.addHeader(HttpHeaders.SET_COOKIE, access.toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, refresh.toString());
     }
 }
