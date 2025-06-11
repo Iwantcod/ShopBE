@@ -37,6 +37,9 @@ public class Order {
     private String address; // 배송 주소
 
     @Column(nullable = false)
+    private String addressDetail; // 상세 주소(동 호수 등)
+
+    @Column(nullable = false)
     private String phone; // 주문자 연락처
 
     @Column(nullable = false)
@@ -47,9 +50,10 @@ public class Order {
     private Boolean isDeleted = false;
 
     @Builder
-    public Order(User user, String address, String phone) {
+    public Order(User user, String address, String addressDetail, String phone) {
         this.user = user;
         this.address = address;
+        this.addressDetail = addressDetail;
         this.phone = phone;
         this.deliveryStatus = DeliveryStatus.PROCESSING;
     }
@@ -90,5 +94,9 @@ public class Order {
 
     public void setDeleted(Boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public void setAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
     }
 }

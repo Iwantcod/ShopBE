@@ -1,5 +1,6 @@
 package com.example.shopPJT.order.service;
 
+import com.example.shopPJT.cart.repository.CartRepository;
 import com.example.shopPJT.global.exception.ApplicationError;
 import com.example.shopPJT.global.exception.ApplicationException;
 import com.example.shopPJT.order.dto.*;
@@ -29,13 +30,15 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderItemsRepository orderItemsRepository;
+    private final CartRepository cartRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, OrderItemsRepository orderItemsRepository) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, OrderItemsRepository orderItemsRepository, CartRepository cartRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.orderItemsRepository = orderItemsRepository;
+        this.cartRepository = cartRepository;
     }
 
     // 이 서버에서는 PG사에서 해당 결제에 대한 인증이 완료되었을때 이 인증을 카드사에 직접 요청하는 기능만 수행한다. ( 추후 구현 예정 )
@@ -47,6 +50,7 @@ public class OrderService {
                 .amount(order.getAmount())
                 .requestedAt(order.getRequested_at())
                 .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
                 .phone(order.getPhone())
                 .deliveryStatus(order.getDeliveryStatus())
                 .build();
@@ -76,6 +80,7 @@ public class OrderService {
         Order order = Order.builder()
                 .user(user)
                 .address(reqOrderDto.getOrderAddress())
+                .addressDetail(reqOrderDto.getOrderAddress())
                 .phone(reqOrderDto.getPhone())
                 .build();
         orderRepository.save(order); // Order의 @Prepersist 메소드 실행: pgOrderId 생성(uuid)
@@ -115,7 +120,7 @@ public class OrderService {
         return ResOrderAuthDto.builder().orderId(order.getPgOrderId()).amount(amount).build();
     }
 
-    @Transactional
+    @Transactional // 결제 승인 요청 전송
     public boolean orderApproveRequest(ReqApproveOrderDto reqApproveOrderDto) {
         // 클라이언트로 받은 orderId(PG사로 전송했던 UUID 값)를 통해 주문 정보 조회
         Order order = orderRepository.findByPgOrderId(reqApproveOrderDto.getOrderId()).orElseThrow(() ->
@@ -141,6 +146,8 @@ public class OrderService {
             }
          */
 
+        List<Long> orderItemProductIds = orderItemsRepository.findProductIdByOrderId(order.getId());
+        cartRepository.deleteAllByUserIdAndProductIds(order.getUser().getId(), orderItemProductIds);
         return true;
     }
 
