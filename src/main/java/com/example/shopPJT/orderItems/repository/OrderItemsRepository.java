@@ -22,7 +22,7 @@ public interface OrderItemsRepository extends JpaRepository<OrderItems, Long> {
     @Query("SELECT o FROM OrderItems o JOIN FETCH o.product WHERE o.order.id = :orderId")
     List<OrderItems> findOrderProductByOrderId(@Param("orderId") Long orderId);
 
-    @Query("SELECT o.id FROM OrderItems o WHERE o.order.id = :orderId")
+    @Query("SELECT o.product.id FROM OrderItems o WHERE o.order.id = :orderId")
     List<Long> findProductIdByOrderId(@Param("orderId") Long orderId);
 
     @Query("SELECT count(o) FROM OrderItems o WHERE o.product.id = :productId AND o.user.id = :userId")

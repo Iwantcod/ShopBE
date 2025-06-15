@@ -32,6 +32,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.isDeleted = false AND p.category.id = :categoryId")
     Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Integer categoryId);
 
+    @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.isDeleted = false")
+    Slice<Product> findAllActiveProductWithoutCategory(Pageable pageable);
+
     @Query("""
         SELECT p FROM Product p
         JOIN FETCH p.user

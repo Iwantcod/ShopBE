@@ -18,6 +18,7 @@ public class ResUserDto {
     private String birth;
     private String phone;
     private String address;
+    private String addressDetail;
     private String zipCode;
     private String role;
 }

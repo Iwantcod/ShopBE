@@ -1,5 +1,6 @@
 package com.example.shopPJT.order.service;
 
+import com.example.shopPJT.cart.entity.Cart;
 import com.example.shopPJT.cart.repository.CartRepository;
 import com.example.shopPJT.global.exception.ApplicationError;
 import com.example.shopPJT.global.exception.ApplicationException;
@@ -131,7 +132,7 @@ public class OrderService {
         }
         // 총 결제 금액 정보가 일치하지 않으면 안전하지 않은 결제 요청이라고 판단, 해당 주문 요청 삭제(soft-delete) 처리
         if(!order.getAmount().equals(reqApproveOrderDto.getAmount())) {
-            approveOrderErrorHandler(order.getId()); // 별도의 트랜잭션으로 예외 처리로직 수행
+            approveOrderErrorHandler(order.getId());
             return false;
         }
         // 주문 정보에 paymentKey 값 저장
@@ -147,7 +148,9 @@ public class OrderService {
          */
 
         List<Long> orderItemProductIds = orderItemsRepository.findProductIdByOrderId(order.getId());
-        cartRepository.deleteAllByUserIdAndProductIds(order.getUser().getId(), orderItemProductIds);
+
+        int rows = cartRepository.deleteAllByUserIdAndProductIds(order.getUser().getId(), orderItemProductIds);
+        log.info("cart delete rows = {}", rows);
         return true;
     }
 

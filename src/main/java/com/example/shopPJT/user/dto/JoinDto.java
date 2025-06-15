@@ -14,11 +14,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class JoinDto {
     @NotBlank(message = "이메일은 필수 정보입니다.")
-    private String email;
     @Pattern(
             regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
             message = "유효하지 않은 이메일 형식입니다."
     )
+    private String email;
     @NotBlank(message = "비밀번호는 필수 정보입니다.")
     private String password;
     @NotBlank(message = "이름은 필수 정보입니다.")
@@ -30,5 +30,6 @@ public class JoinDto {
     )
     private String phone;
     private String address;
+    private String addressDetail;
     private String zipCode;
 }

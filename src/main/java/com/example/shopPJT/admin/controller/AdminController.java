@@ -6,7 +6,9 @@ import com.example.shopPJT.benchmark.service.BenchMarkService;
 import com.example.shopPJT.businessInfo.dto.ResBusinessInfoDto;
 import com.example.shopPJT.businessInfo.service.BusinessInfoService;
 import com.example.shopPJT.product.dto.ReqCategoryDto;
+import com.example.shopPJT.product.dto.ResProductDto;
 import com.example.shopPJT.product.service.CategoryService;
+import com.example.shopPJT.product.service.ProductService;
 import com.example.shopPJT.productSpec.dto.ModelNameDto;
 import com.example.shopPJT.productSpec.service.ProductSpecServiceFactory;
 import com.example.shopPJT.user.service.UserService;
@@ -34,15 +36,17 @@ public class AdminController {
     private final ObjectMapper objectMapper;
     private final ProductSpecServiceFactory productSpecServiceFactory;
     private final BenchMarkService benchMarkService;
+    private final ProductService productService;
 
     @Autowired
-    public AdminController(UserService userService, BusinessInfoService businessInfoService, CategoryService categoryService, ProductSpecServiceFactory productSpecServiceFactory, ObjectMapper objectMapper, BenchMarkService benchMarkService) {
+    public AdminController(UserService userService, BusinessInfoService businessInfoService, CategoryService categoryService, ProductSpecServiceFactory productSpecServiceFactory, ObjectMapper objectMapper, BenchMarkService benchMarkService, ProductService productService) {
         this.userService = userService;
         this.businessInfoService = businessInfoService;
         this.categoryService = categoryService;
         this.productSpecServiceFactory = productSpecServiceFactory;
         this.objectMapper = objectMapper;
         this.benchMarkService = benchMarkService;
+        this.productService = productService;
     }
 
     @GetMapping("/check-on-approval/{startOffset}")
@@ -145,6 +149,19 @@ public class AdminController {
     @Operation(summary = "벤치마크 정보 삭제")
     public ResponseEntity<Void> deleteBenchMark(@PathVariable Long benchMarkId) {
         benchMarkService.deleteBenchMark(benchMarkId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/all-product/{startOffset}")
+    @Operation(summary = "카테고리 구분 없이 모든 상품 페이징 조회")
+    public ResponseEntity<List<ResProductDto>> getAllProductWithoutCategory(@PathVariable Integer startOffset) {
+        return ResponseEntity.ok().body(productService.getAllProductVolumeDesc(startOffset));
+    }
+
+    @DeleteMapping("/product/{productId}")
+    @Operation(summary = "상품 삭제 처리")
+    public ResponseEntity<Void> deleteProductAdmin(@PathVariable Long productId) {
+        productService.offProductAdmin(productId);
         return ResponseEntity.ok().build();
     }
 }

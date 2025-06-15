@@ -24,5 +24,6 @@ public class UpdateUserDto {
     )
     private String phone;
     private String address;
+    private String addressDetail;
     private String zipCode;
 }

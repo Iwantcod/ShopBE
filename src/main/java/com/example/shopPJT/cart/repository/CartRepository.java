@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,10 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     List<ResCartDto> findCartAndProductByUserId(Long userId);
 
 
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.product.id IN :productIds")
+    Optional<Cart> findAllByUserIdAndProductId(@Param("userId") Long userId, @Param("productIds") List<Long> productIds);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Cart c WHERE c.user.id = :userId AND c.product.id IN :productIds")
-    void deleteAllByUserIdAndProductIds(@Param("userId") Long userId, List<Long> productIds);
+    int deleteAllByUserIdAndProductIds(@Param("userId") Long userId, @Param("productIds") List<Long> productIds);
 }

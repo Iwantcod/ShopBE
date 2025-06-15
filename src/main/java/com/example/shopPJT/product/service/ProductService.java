@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,6 +125,22 @@ public class ProductService {
 
         Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("volume").descending());
         Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
+        if(products.isEmpty()){
+            throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
+        }
+        Slice<ResProductDto> dtoPage = products.map(this::toDto);
+        return dtoPage.getContent();
+    }
+
+    @Transactional(readOnly = true) // 카테고리 관계없이 최신순 페이징 조회
+    public List<ResProductDto> getAllProductVolumeDesc(Integer startOffset) {
+        int pageSize = 10;
+
+        if(startOffset == null) {
+            startOffset = 0;
+        }
+        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
+        Slice<Product> products = productRepository.findAllActiveProductWithoutCategory(pageable);
         if(products.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
@@ -372,6 +389,13 @@ public class ProductService {
         if(!product.getUser().getId().equals(userId)) {
             throw new ApplicationException(ApplicationError.ACCESS_NOT_ALLOWED);
         }
+        product.setDeleted(true);
+    }
+
+    @Transactional
+    public void offProductAdmin(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
         product.setDeleted(true);
     }
 

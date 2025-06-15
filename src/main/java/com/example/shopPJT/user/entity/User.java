@@ -37,6 +37,8 @@ public class User {
 
     private String address;
 
+    private String addressDetail; // 상세 주소(동 호수 등)
+
     private String zipCode;
 
     private String refreshToken;
@@ -101,5 +103,9 @@ public class User {
 
     public void setDeleted(Boolean deleted) {
         this.isDeleted = deleted;
+    }
+
+    public void setAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
     }
 }

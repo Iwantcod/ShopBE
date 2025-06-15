@@ -51,6 +51,7 @@ public class UserService {
         resUserDto.setName(user.getName());
         resUserDto.setEmail(user.getEmail());
         resUserDto.setPhone(user.getPhone());
+        resUserDto.setAddressDetail(user.getAddressDetail());
         if(user.getBirth() != null) { resUserDto.setBirth(user.getBirth().toString()); }
         resUserDto.setAddress(user.getAddress());
         resUserDto.setZipCode(user.getZipCode());
@@ -90,6 +91,7 @@ public class UserService {
         user.setName(joinDto.getName());
         user.setAddress(joinDto.getAddress());
         user.setBirth(joinDto.getBirth());
+        user.setAddressDetail(joinDto.getAddressDetail());
         user.setZipCode(joinDto.getZipCode());
         return user;
     }
@@ -145,6 +147,7 @@ public class UserService {
         user.setBirth(joinCompleteDto.getBirth());
         user.setPhone(joinCompleteDto.getPhone());
         user.setAddress(joinCompleteDto.getAddress());
+        user.setAddressDetail(joinCompleteDto.getAddressDetail());
         user.setZipCode(joinCompleteDto.getZipCode());
         userRepository.save(user);
     }
@@ -232,6 +235,9 @@ public class UserService {
         }
         if(updateUserDto.getZipCode() != null) {
             user.get().setZipCode(updateUserDto.getZipCode());
+        }
+        if(updateUserDto.getAddressDetail() != null) {
+            user.get().setAddressDetail(updateUserDto.getAddressDetail());
         }
         // 트랜잭션으로 관리되는 메소드는 메소드 종료 시 '트랜잭션 커밋'이 발생하므로, 별도의 save() 호출이 필요없다.(변경사항 자동 커밋)
 //        userRepository.save(user.get());
