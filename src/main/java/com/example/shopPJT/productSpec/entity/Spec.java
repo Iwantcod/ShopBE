@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -16,6 +17,8 @@ public abstract class Spec {
     @Column(nullable = false, unique = true)
     private String modelName;
     private String manufacturer;
+    private Integer avgPrice = 0; // 평균가격 기본값 0
+
     @Column(insertable = false, updatable = false,
         columnDefinition = "DATE DEFAULT (CURRENT_DATE)") // 튜플 추가 시 데이터베이스 레벨에서 자동으로 추가 일자 정보를 삽입
     private LocalDate createdAt;
@@ -26,5 +29,8 @@ public abstract class Spec {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+    public void setAvgPrice(Integer avgPrice) {
+        this.avgPrice = avgPrice;
     }
 }

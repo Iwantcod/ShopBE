@@ -11,6 +11,8 @@ import com.example.shopPJT.product.service.CategoryService;
 import com.example.shopPJT.product.service.ProductService;
 import com.example.shopPJT.productSpec.dto.ModelNameDto;
 import com.example.shopPJT.productSpec.service.ProductSpecServiceFactory;
+import com.example.shopPJT.recommendedOriginal.dto.ReqRecommendedOriginalDto;
+import com.example.shopPJT.recommendedOriginal.service.RecommendedOriginalService;
 import com.example.shopPJT.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,9 +39,10 @@ public class AdminController {
     private final ProductSpecServiceFactory productSpecServiceFactory;
     private final BenchMarkService benchMarkService;
     private final ProductService productService;
+    private final RecommendedOriginalService recommendedOriginalService;
 
     @Autowired
-    public AdminController(UserService userService, BusinessInfoService businessInfoService, CategoryService categoryService, ProductSpecServiceFactory productSpecServiceFactory, ObjectMapper objectMapper, BenchMarkService benchMarkService, ProductService productService) {
+    public AdminController(UserService userService, BusinessInfoService businessInfoService, CategoryService categoryService, ProductSpecServiceFactory productSpecServiceFactory, ObjectMapper objectMapper, BenchMarkService benchMarkService, ProductService productService, RecommendedOriginalService recommendedOriginalService) {
         this.userService = userService;
         this.businessInfoService = businessInfoService;
         this.categoryService = categoryService;
@@ -47,6 +50,7 @@ public class AdminController {
         this.objectMapper = objectMapper;
         this.benchMarkService = benchMarkService;
         this.productService = productService;
+        this.recommendedOriginalService = recommendedOriginalService;
     }
 
     @GetMapping("/check-on-approval/{startOffset}")
@@ -162,6 +166,13 @@ public class AdminController {
     @Operation(summary = "상품 삭제 처리")
     public ResponseEntity<Void> deleteProductAdmin(@PathVariable Long productId) {
         productService.offProductAdmin(productId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/original")
+    @Operation(summary = "추천 견적 '원본' 추가", description = "모든 필드값 필수 입력")
+    public ResponseEntity<Void> addOriginal(@RequestBody ReqRecommendedOriginalDto request) {
+        recommendedOriginalService.addOriginal(request);
         return ResponseEntity.ok().build();
     }
 }

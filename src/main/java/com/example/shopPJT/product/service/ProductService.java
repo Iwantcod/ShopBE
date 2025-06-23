@@ -247,7 +247,7 @@ public class ProductService {
         // 6. Input Stream을 이용하여 업로드
         Thumbnails.of(file.getInputStream()) // 업로드할 파일의 입력 스트림 사용
                 .size(800, 600)                // 이미지 크기 설정
-                .outputQuality(0.7)               // 품질 조절(70%)
+                .outputQuality(0.9)               // 품질 조절(90%)
                 .toFile(productImageFilePath);       // 최종적으로 저장
 
         // 스토리지에 업로드된 이미지 최종 경로를 반환

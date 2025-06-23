@@ -60,7 +60,6 @@ public class CartService {
         cart.setProduct(product);
         cart.setQuantity(reqCartDto.getQuantity());
         cartRepository.save(cart);
-        return;
     }
 
     @Transactional // 장바구니 업데이트

@@ -32,6 +32,7 @@ public class BenchMarkService {
 
     private ResBenchMarkDto toDto(BenchMark benchMark) {
         ResBenchMarkDto resBenchMarkDto = new ResBenchMarkDto();
+        resBenchMarkDto.setBenchmarkId(benchMark.getId());
         resBenchMarkDto.setAvgFrame1(benchMark.getAvgFrame1());
         resBenchMarkDto.setAvgFrame2(benchMark.getAvgFrame2());
         resBenchMarkDto.setAvgFrame3(benchMark.getAvgFrame3());

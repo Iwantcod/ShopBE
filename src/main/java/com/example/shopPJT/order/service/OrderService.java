@@ -104,6 +104,8 @@ public class OrderService {
                 throw new ApplicationException(ApplicationError.PRODUCT_OUT_OF_STOCK);
             }
             curProduct.setInventory(curProduct.getInventory() - item.getQuantity());
+            // 판매량 증가
+            curProduct.setVolume(curProduct.getVolume() + item.getQuantity());
 
             // 주문의 총 결제 금액 계산
             amount += curProduct.getPrice() * item.getQuantity();
@@ -162,8 +164,9 @@ public class OrderService {
 
         for(OrderItems item : orderItems) {
             Product curProduct = productRepository.findById(item.getProduct().getId()).orElseThrow(() -> new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND));
-            // 주문 수량 만큼 재고량 복구
+            // 주문 수량 만큼 재고량 복구, 판매량 감소
             curProduct.setInventory(curProduct.getInventory() + item.getQuantity());
+            curProduct.setVolume(curProduct.getVolume() - item.getQuantity());
         }
         orderItemsRepository.deleteByOrderIdBulk(orderId); // 주문 요소 삭제
         orderRepository.deleteOrderBulk(orderId); // 주문 정보 삭제

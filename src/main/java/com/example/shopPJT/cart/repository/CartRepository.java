@@ -16,7 +16,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.product.id = :productId")
     Optional<Cart> findByUserIdAndProductId(@Param("userId") Long userId, @Param("productId") Long productId);
 
-    @Query("SELECT new com.example.shopPJT.cart.dto.ResCartDto(p.id, p.name, p.price, p.inventory, p.user.id, p.productImageUrl, p.descriptionImageUrl, c.id, c.quantity)" + "FROM Cart c JOIN c.product p WHERE c.user.id = :userId")
+    @Query("SELECT new com.example.shopPJT.cart.dto.ResCartDto(p.id, p.name, p.price, p.inventory, p.user.id, p.category.id, p.productImageUrl, p.descriptionImageUrl, c.id, c.quantity)" + "FROM Cart c JOIN c.product p WHERE c.user.id = :userId")
     List<ResCartDto> findCartAndProductByUserId(Long userId);
 
 

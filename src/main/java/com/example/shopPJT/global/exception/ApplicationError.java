@@ -43,6 +43,16 @@ public enum ApplicationError {
     ORDER_CANNOT_CANCEL(HttpStatus.BAD_REQUEST, "준비 중인 주문만 취소할 수 있습니다."),
     PARENT_REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "부모로 지정한 리뷰가 존재하지 않습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다."),
+    USAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 용도입니다."),
+    RECOMMENDED_NOT_FOUND(HttpStatus.NOT_FOUND, "추천 견적 정보가 존재하지 않습니다."),
+    CPU_NOT_FOUND(HttpStatus.NOT_FOUND, "cpu 정보가 존재하지 않습니다."),
+    GRAPHIC_NOT_FOUND(HttpStatus.NOT_FOUND, "graphic 정보가 존재하지 않습니다."),
+    MAINBOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "mainboard 정보가 존재하지 않습니다."),
+    CASE_NOT_FOUND(HttpStatus.NOT_FOUND, "case 정보가 존재하지 않습니다."),
+    COOLER_NOT_FOUND(HttpStatus.NOT_FOUND, "cooler 정보가 존재하지 않습니다."),
+    STORAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "storage 정보가 존재하지 않습니다."),
+    POWER_NOT_FOUND(HttpStatus.NOT_FOUND, "power 정보가 존재하지 않습니다."),
+    MEMORY_NOT_FOUND(HttpStatus.NOT_FOUND, "memory 정보가 존재하지 않습니다."),
 
 
     // 데이터베이스 및 스토리지 관련

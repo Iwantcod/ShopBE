@@ -1,5 +1,6 @@
 package com.example.shopPJT.cart.entity;
 
+import com.example.shopPJT.product.entity.Category;
 import com.example.shopPJT.product.entity.Product;
 import com.example.shopPJT.user.entity.User;
 import jakarta.persistence.*;
@@ -24,12 +25,17 @@ public class Cart {
     @Column(nullable = false)
     private Integer quantity;
 
+    @JoinColumn(name = "CATEGORY_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category;
+
     public void setUser(User user) {
         this.user = user;
     }
 
     public void setProduct(Product product) {
         this.product = product;
+        this.category = product.getCategory();
     }
 
     public void setQuantity(Integer quantity) {

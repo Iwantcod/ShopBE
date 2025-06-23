@@ -1,6 +1,7 @@
 package com.example.shopPJT.orderItems.entity;
 
 import com.example.shopPJT.order.entity.Order;
+import com.example.shopPJT.product.entity.Category;
 import com.example.shopPJT.product.entity.Product;
 import com.example.shopPJT.user.entity.User;
 import jakarta.persistence.*;
@@ -32,10 +33,15 @@ public class OrderItems {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
+    @JoinColumn(name = "CATEGORY_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category;
+
     @Builder
     public OrderItems(Order order, Product product, Integer quantity) {
         this.order = order;
         this.product = product;
+        this.category = product.getCategory();
         this.quantity = quantity;
         this.user = order.getUser();
     }

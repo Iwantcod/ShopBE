@@ -11,4 +11,5 @@ public class ResOrderItemsDto {
     private Long sellerUserId;
     private String productImageUrl; // 상품 대표 이미지
     private Integer quantity;
+    private Integer categoryId;
 }

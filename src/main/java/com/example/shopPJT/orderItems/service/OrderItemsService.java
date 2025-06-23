@@ -29,6 +29,7 @@ public class OrderItemsService {
         resOrderItemsDto.setQuantity(orderItems.getQuantity());
         resOrderItemsDto.setProductImageUrl(orderItems.getProduct().getProductImageUrl());
         resOrderItemsDto.setSellerUserId(orderItems.getProduct().getUser().getId());
+        resOrderItemsDto.setCategoryId(orderItems.getCategory().getId());
         return resOrderItemsDto;
     }
 
