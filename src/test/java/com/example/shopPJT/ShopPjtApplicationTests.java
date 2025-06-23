@@ -9,6 +9,8 @@ import com.example.shopPJT.product.repository.ProductRepository;
 import com.example.shopPJT.productSpec.dto.ModelNameDto;
 import com.example.shopPJT.productSpec.entity.*;
 import com.example.shopPJT.productSpec.repository.*;
+import com.example.shopPJT.recommendedOriginal.dto.ResRecommendedOriginalDto;
+import com.example.shopPJT.recommendedOriginal.repository.RecommendedOriginalRepository;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -16,45 +18,48 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @SpringBootTest
 @Rollback(false)
 class ShopPjtApplicationTests {
-	private final CategoryRepository categoryRepository;
-    private final CpuSpecRepository cpuSpecRepository;
-    private final GraphicSpecRepository graphicSpecRepository;
-    private final CaseSpecRepository caseSpecRepository;
-    private final MemorySpecRepository memorySpecRepository;
-    private final PowerSpecRepository powerSpecRepository;
-    private final CoolerSpecRepository coolerSpecRepository;
-    private final MainBoardSpecRepository mainBoardSpecRepository;
-    private final StorageSpecRepository storageSpecRepository;
-	private final UserRepository userRepository;
+	@Autowired
+	private CategoryRepository categoryRepository;
+	@Autowired
+	private CpuSpecRepository cpuSpecRepository;
+	@Autowired
+    private GraphicSpecRepository graphicSpecRepository;
+	@Autowired
+    private CaseSpecRepository caseSpecRepository;
+	@Autowired
+    private MemorySpecRepository memorySpecRepository;
+	@Autowired
+    private PowerSpecRepository powerSpecRepository;
+	@Autowired
+    private CoolerSpecRepository coolerSpecRepository;
+	@Autowired
+    private MainBoardSpecRepository mainBoardSpecRepository;
+	@Autowired
+    private StorageSpecRepository storageSpecRepository;
+	@Autowired
+	private UserRepository userRepository;
     @Autowired
     private ProductRepository productRepository;
     @Autowired
     private BenchMarkRepository benchMarkRepository;
+    @Autowired
+    private RecommendedOriginalRepository recommendedOriginalRepository;
 
-	@Autowired
-	ShopPjtApplicationTests(CategoryRepository categoryRepository, CpuSpecRepository cpuSpecRepository, GraphicSpecRepository graphicSpecRepository, CaseSpecRepository caseSpecRepository,
-							MemorySpecRepository memorySpecRepository, PowerSpecRepository powerSpecRepository, CoolerSpecRepository coolerSpecRepository,
-							MainBoardSpecRepository mainBoardSpecRepository, StorageSpecRepository storageSpecRepository, UserRepository userRepository) {
-		this.categoryRepository = categoryRepository;
-		this.cpuSpecRepository = cpuSpecRepository;
-		this.graphicSpecRepository = graphicSpecRepository;
-		this.caseSpecRepository = caseSpecRepository;
-		this.memorySpecRepository = memorySpecRepository;
-		this.powerSpecRepository = powerSpecRepository;
-		this.coolerSpecRepository = coolerSpecRepository;
-		this.mainBoardSpecRepository = mainBoardSpecRepository;
-		this.storageSpecRepository = storageSpecRepository;
-		this.userRepository = userRepository;
-	}
 
 	@Test
 	void contextLoads() {
-		benchMarkRepository.findByCpuSpecIdAndGraphicSpecId(1L, 1L);
+		ResRecommendedOriginalDto result = recommendedOriginalRepository.findByUsageIdAndPrice(1, 790000);
+		if(result == null) {
+			System.out.println("견적 원본 조회 결과가 존재하지 않습니다.");
+		} else {
+			System.out.println("견적원본 식별자: "+result.getRecommendedOriginalId()+", 견적원본 예상가격: "+result.getEstimatePrice());
+		}
 	}
 
 }
