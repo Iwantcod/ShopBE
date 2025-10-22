@@ -19,8 +19,8 @@ public class RecommendedOriginal {
     private Long recommendedOriginalId;
     @Column(nullable = false)
     private Integer estimatePrice; // 견적 예상 가격(근사치)
-    @Column(nullable = false, updatable = false)
-    @CreationTimestamp
+    @Column(insertable = false, updatable = false,
+            columnDefinition = "DATE DEFAULT (CURRENT_DATE)")
     private LocalDate createdAt;
 
     @JoinColumn(name = "CPUSPEC_ID", nullable = false)

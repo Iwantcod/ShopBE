@@ -20,8 +20,9 @@ public class RecommendedProduct {
     private Long recommendedProductId;
     @Column(nullable = false)
     private Integer totalPrice;
-    @Column(nullable = false, updatable = false)
     @CreationTimestamp
+    @Column(insertable = false, updatable = false,
+            columnDefinition = "DATE DEFAULT (CURRENT_DATE)")
     private LocalDate createdAt;
 
     @JoinColumn(name = "CPU_PRODUCT_ID", nullable = false)

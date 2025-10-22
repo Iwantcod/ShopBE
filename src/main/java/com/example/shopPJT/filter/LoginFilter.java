@@ -4,7 +4,6 @@ import com.example.shopPJT.user.details.JwtUserDetails;
 import com.example.shopPJT.user.service.UserService;
 import com.example.shopPJT.util.JwtUtil;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
