@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RecommendedProduct {
-    @Id @GeneratedValue @Column(name = "RECOMMENDED_PRODUCT_ID")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "RECOMMENDED_PRODUCT_ID")
     private Long recommendedProductId;
     @Column(nullable = false)
     private Integer totalPrice;
@@ -29,11 +29,11 @@ public class RecommendedProduct {
     @ManyToOne(fetch = FetchType.LAZY)
     private Product cpuProduct;
 
-    @JoinColumn(name = "GRAPHIC_PRODUCT_ID", nullable = false)
+    @JoinColumn(name = "GRAPHIC_PRODUCT_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Product graphicProduct;
 
-    @JoinColumn(name = "CASE_PRODUCT_ID", nullable = false)
+    @JoinColumn(name = "CASE_PRODUCT_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Product caseProduct;
 
@@ -45,11 +45,11 @@ public class RecommendedProduct {
     @ManyToOne(fetch = FetchType.LAZY)
     private Product powerProduct;
 
-    @JoinColumn(name = "STORAGE_PRODUCT_ID", nullable = false)
+    @JoinColumn(name = "STORAGE_PRODUCT_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Product storageProduct;
 
-    @JoinColumn(name = "COOLER_PRODUCT_ID", nullable = false)
+    @JoinColumn(name = "COOLER_PRODUCT_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Product coolerProduct;
 

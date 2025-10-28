@@ -11,8 +11,12 @@ import com.example.shopPJT.productSpec.entity.*;
 import com.example.shopPJT.productSpec.repository.*;
 import com.example.shopPJT.recommendedOriginal.dto.ResRecommendedOriginalDto;
 import com.example.shopPJT.recommendedOriginal.repository.RecommendedOriginalRepository;
+import com.example.shopPJT.recommendedProduct.entity.RecommendedProduct;
+import com.example.shopPJT.recommendedProduct.service.RecommendedProductService;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,9 +54,12 @@ class ShopPjtApplicationTests {
     private BenchMarkRepository benchMarkRepository;
     @Autowired
     private RecommendedOriginalRepository recommendedOriginalRepository;
+    @Autowired
+    private RecommendedProductService recommendedProductService;
 
 
 	@Test
+	@Disabled
 	void contextLoads() {
 		ResRecommendedOriginalDto result = recommendedOriginalRepository.findByUsageIdAndPrice(1, 790000);
 		if(result == null) {
@@ -60,6 +67,13 @@ class ShopPjtApplicationTests {
 		} else {
 			System.out.println("견적원본 식별자: "+result.getRecommendedOriginalId()+", 견적원본 예상가격: "+result.getEstimatePrice());
 		}
+	}
+
+	@Test
+	@Disabled
+	@DisplayName("견적 상품 insert")
+	void insertRP() {
+		recommendedProductService.updateRecommendedProduct();
 	}
 
 }

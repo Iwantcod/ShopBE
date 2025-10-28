@@ -19,9 +19,9 @@ public class ProductSpecJobService {
     private final StorageSpecRepository storageSpecRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 3 1/3 * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 3 1/1 * *", zone = "Asia/Seoul")
     public void updateAvgPrice() {
-        // 3일 간격으로 한국 기준 03시에 각 모델 부품의 평균값 계산
+        // 매일 한국 기준 03시에 각 모델 부품의 평균값 계산
         cpuSpecRepository.updateAvgPrice();
         graphicSpecRepository.updateAvgPrice();
         caseSpecRepository.updateAvgPrice();

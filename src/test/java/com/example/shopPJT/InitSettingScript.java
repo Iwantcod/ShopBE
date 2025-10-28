@@ -8,6 +8,7 @@ import com.example.shopPJT.productSpec.repository.*;
 import com.example.shopPJT.user.entity.RoleType;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -45,6 +46,7 @@ public class InitSettingScript {
     }
 
     @Test
+    @Disabled
     void contextLoads() {
 //         카테고리 정보 추가하는 스크립트
 		CategoryName[] categoryName = {CategoryName.CPU, CategoryName.GRAPHIC, CategoryName.CASE, CategoryName.MEMORY, CategoryName.POWER,

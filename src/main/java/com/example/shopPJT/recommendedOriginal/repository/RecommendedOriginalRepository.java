@@ -34,5 +34,4 @@ public interface RecommendedOriginalRepository extends JpaRepository<Recommended
             ON r.recommendedUsage.recommendedUsageId = :usageId
             """)
     Slice<ResRecommendedOriginalDto> findByUsageIdOrderByPrice(Pageable pageable, @Param("usageId") Integer usageId);
-
 }
