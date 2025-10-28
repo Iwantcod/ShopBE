@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RecommendedProductRepository extends JpaRepository<RecommendedProduct, Long> {
     /**
@@ -62,7 +63,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
             
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 1
+         WHERE p.is_deleted = 0 AND p.category_id = 1
            AND p.logicalfk = cpu.cpuspec_id
            AND ABS(cpu.avg_price - p.price)
                  <= FLOOR(cpu.avg_price * 0.05)
@@ -71,7 +72,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 2
+         WHERE p.is_deleted = 0 AND p.category_id = 2
            AND p.logicalfk = gra.graphicspec_id
            AND ABS(gra.avg_price - p.price)
                  <= FLOOR(gra.avg_price * 0.05)
@@ -80,7 +81,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 3
+         WHERE p.is_deleted = 0 AND p.category_id = 3
            AND p.logicalfk = cas.casespec_id
            AND ABS(cas.avg_price - p.price)
                  <= FLOOR(cas.avg_price * 0.05)
@@ -89,7 +90,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 4
+         WHERE p.is_deleted = 0 AND p.category_id = 4
            AND p.logicalfk = mem.memoryspec_id
            AND ABS(mem.avg_price - p.price)
                  <= FLOOR(mem.avg_price * 0.05)
@@ -98,7 +99,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 5
+         WHERE p.is_deleted = 0 AND p.category_id = 5
            AND p.logicalfk = po.powerspec_id
            AND ABS(po.avg_price - p.price)
                  <= FLOOR(po.avg_price * 0.05)
@@ -107,7 +108,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 6
+         WHERE p.is_deleted = 0 AND p.category_id = 6
            AND p.logicalfk = ma.mainboardspec_id
            AND ABS(ma.avg_price - p.price)
                  <= FLOOR(ma.avg_price * 0.05)
@@ -116,7 +117,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 7
+         WHERE p.is_deleted = 0 AND p.category_id = 7
            AND p.logicalfk = coo.coolerspec_id
            AND ABS(coo.avg_price - p.price)
                  <= FLOOR(coo.avg_price * 0.05)
@@ -125,7 +126,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
              
         (SELECT p.product_id
          FROM product p
-         WHERE p.category_id = 8
+         WHERE p.is_deleted = 0 AND p.category_id = 8
            AND p.logicalfk = st.storagespec_id
            AND ABS(st.avg_price - p.price)
                  <= FLOOR(st.avg_price * 0.05)
@@ -166,7 +167,7 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
                                      @Param("coolerId") Long coolerId, @Param("storageId") Long storageId);
 
     /**
-     * 추천 견적
+     * 추천 견적 추가(Bulk Insert)
      * @param usageId
      * @param originalId
      * @param cpuId
@@ -189,5 +190,31 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
                     @Param("cpuId") Long cpuId, @Param("graphicId") Long graphicId, @Param("caseId") Long caseId,
                     @Param("memoryId") Long memoryId, @Param("powerId") Long powerId, @Param("mainboardId") Long mainboardId,
                     @Param("coolerId") Long coolerId, @Param("storageId") Long storageId, @Param("totalPrice") Integer totalPrice);
+
+    @Query("""
+        SELECT r
+        FROM RecommendedProduct r
+        LEFT JOIN FETCH r.cpuProduct LEFT JOIN FETCH r.graphicProduct LEFT JOIN FETCH r.caseProduct LEFT JOIN FETCH r.memoryProduct
+        LEFT JOIN FETCH r.powerProduct LEFT JOIN FETCH r.mainboardProduct LEFT JOIN FETCH r.coolerProduct LEFT JOIN FETCH r.storageProduct
+        WHERE r.recommendedUsage.recommendedUsageId = :usageId AND r.totalPrice <= :budget
+        ORDER BY r.createdAt DESC, r.totalPrice DESC, r.recommendedProductId DESC
+        LIMIT 1
+    """)
+    Optional<RecommendedProduct> findByUsageAndBudget(@Param("usageId") Integer usageId, @Param("budget") Integer budget);
+
+    /**
+     * 가장 최근 견적 중 가장 저렴한 견적 조회(추천 견적 조회 실패 시 반환할 견적)
+     * @return
+     */
+    @Query("""
+        SELECT r
+        FROM RecommendedProduct r
+        LEFT JOIN FETCH r.cpuProduct LEFT JOIN FETCH r.graphicProduct LEFT JOIN FETCH r.caseProduct LEFT JOIN FETCH r.memoryProduct
+        LEFT JOIN FETCH r.powerProduct LEFT JOIN FETCH r.mainboardProduct LEFT JOIN FETCH r.coolerProduct LEFT JOIN FETCH r.storageProduct
+        WHERE r.recommendedUsage.recommendedUsageId = :usageId
+        ORDER BY r.createdAt DESC, r.totalPrice ASC, r.recommendedProductId DESC
+        LIMIT 1
+    """)
+    Optional<RecommendedProduct> findLatestCheap(@Param("usageId") Integer usageId);
 }
 

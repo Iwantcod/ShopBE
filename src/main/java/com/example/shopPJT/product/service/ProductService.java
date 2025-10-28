@@ -63,7 +63,12 @@ public class ProductService {
         this.recommendedProductRepository = recommendedProductRepository;
     }
 
-    private ResProductDto toDto(Product product) {
+    /**
+     * Product -> ResProductDto
+     * @param product
+     * @return
+     */
+    public ResProductDto toDto(Product product) {
         ResProductDto resProductDto = new ResProductDto();
         resProductDto.setProductId(product.getId());
         resProductDto.setName(product.getName());

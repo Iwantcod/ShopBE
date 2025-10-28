@@ -64,21 +64,4 @@ public class RecommendedProduct {
     @JoinColumn(name = "RECOMMENDED_ORIGINAL_ID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private RecommendedOriginal recommendedOriginal;
-
-    @Builder
-    public RecommendedProduct(Product cpuProduct, Product graphicProduct, Product caseProduct, Product mainboardProduct, Product powerProduct, Product storageProduct, Product coolerProduct, Product memoryProduct, RecommendedUsage recommendedUsage, RecommendedOriginal recommendedOriginal) {
-        this.cpuProduct = cpuProduct;
-        this.graphicProduct = graphicProduct;
-        this.caseProduct = caseProduct;
-        this.mainboardProduct = mainboardProduct;
-        this.powerProduct = powerProduct;
-        this.storageProduct = storageProduct;
-        this.coolerProduct = coolerProduct;
-        this.memoryProduct = memoryProduct;
-        this.recommendedUsage = recommendedUsage;
-        this.recommendedOriginal = recommendedOriginal;
-        // 견적 총 가격: 견적 요소의 가격 총합
-        this.totalPrice = cpuProduct.getPrice() + graphicProduct.getPrice() + caseProduct.getPrice() + mainboardProduct.getPrice()
-                + powerProduct.getPrice() + storageProduct.getPrice() + coolerProduct.getPrice() + memoryProduct.getPrice();
-    }
 }

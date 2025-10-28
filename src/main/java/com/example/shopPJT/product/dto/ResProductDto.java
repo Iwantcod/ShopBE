@@ -22,4 +22,16 @@ public class ResProductDto {
     private Long logicalFK;
     private LocalDate createdAt;
     private Integer volume; // 판매량
+
+    @Override
+    public String toString() {
+        return "ResProductDto{" +
+                "productId=" + productId +
+                ", name='" + name + '\'' +
+                ", sellerUserName='" + sellerUserName + '\'' +
+                ", categoryId=" + categoryId +
+                ", logicalFK=" + logicalFK +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

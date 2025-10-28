@@ -11,6 +11,7 @@ import com.example.shopPJT.productSpec.entity.*;
 import com.example.shopPJT.productSpec.repository.*;
 import com.example.shopPJT.recommendedOriginal.dto.ResRecommendedOriginalDto;
 import com.example.shopPJT.recommendedOriginal.repository.RecommendedOriginalRepository;
+import com.example.shopPJT.recommendedProduct.dto.ResRecommended;
 import com.example.shopPJT.recommendedProduct.entity.RecommendedProduct;
 import com.example.shopPJT.recommendedProduct.service.RecommendedProductService;
 import com.example.shopPJT.user.entity.User;
@@ -74,6 +75,14 @@ class ShopPjtApplicationTests {
 	@DisplayName("견적 상품 insert")
 	void insertRP() {
 		recommendedProductService.updateRecommendedProduct();
+	}
+
+	@Test
+	@Disabled
+	@DisplayName("추천 견적 조회")
+	void getRecommendedProduct() {
+		ResRecommended resRecommended = recommendedProductService.getRecommendedProduct(2, 50000000);
+		System.out.println(resRecommended);
 	}
 
 }

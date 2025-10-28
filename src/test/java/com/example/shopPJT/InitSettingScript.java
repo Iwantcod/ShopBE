@@ -9,6 +9,7 @@ import com.example.shopPJT.user.entity.RoleType;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -57,6 +58,12 @@ public class InitSettingScript {
 			category.setName(categoryName[i].toString());
 			categoryRepository.save(category);
 		}
+    }
 
+    @Test
+    @Disabled
+    @DisplayName("그래픽 카드 평균정보 갱신")
+    void graphicAvgPriceUpdate() {
+        graphicSpecRepository.updateAvgPrice();
     }
 }
