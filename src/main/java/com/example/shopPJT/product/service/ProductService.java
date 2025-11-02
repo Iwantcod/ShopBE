@@ -12,6 +12,7 @@ import com.example.shopPJT.product.repository.CategoryRepository;
 import com.example.shopPJT.product.repository.ProductRepository;
 import com.example.shopPJT.productSpec.repository.*;
 import com.example.shopPJT.productSpec.service.ProductSpecServiceFactory;
+import com.example.shopPJT.recommendedProduct.repository.RecommendedProductRepository;
 import com.example.shopPJT.user.entity.User;
 import com.example.shopPJT.user.repository.UserRepository;
 import com.example.shopPJT.util.AuthUtil;
@@ -47,20 +48,27 @@ public class ProductService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ProductSpecServiceFactory productSpecServiceFactory;
+    private final RecommendedProductRepository recommendedProductRepository;
 
     @Value("${app.storage-path}")
     private String storagePath;
     @Autowired
     public ProductService(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository,
-                          ProductSpecServiceFactory productSpecServiceFactory) {
+                          ProductSpecServiceFactory productSpecServiceFactory, RecommendedProductRepository recommendedProductRepository) {
 
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.productSpecServiceFactory = productSpecServiceFactory;
+        this.recommendedProductRepository = recommendedProductRepository;
     }
 
-    private ResProductDto toDto(Product product) {
+    /**
+     * Product -> ResProductDto
+     * @param product
+     * @return
+     */
+    public ResProductDto toDto(Product product) {
         ResProductDto resProductDto = new ResProductDto();
         resProductDto.setProductId(product.getId());
         resProductDto.setName(product.getName());
@@ -373,7 +381,16 @@ public class ProductService {
 
         }
 
-        if(reqUpdateProductInfoDto.getPrice() > 0) {
+        if(reqUpdateProductInfoDto.getPrice() != null && reqUpdateProductInfoDto.getPrice() > 0) {
+            if(product.getPrice() > reqUpdateProductInfoDto.getPrice()) {
+                // 가격 감소 시 해당 상품과 관련된 '추천 견적' 레코드도 수정(Bulk Update)
+                Integer minus = product.getPrice() - reqUpdateProductInfoDto.getPrice();
+                recommendedProductRepository.minusPriceByProductId(productId, minus);
+            } else if(product.getPrice() < reqUpdateProductInfoDto.getPrice()) {
+                // 가격 상승 시 해당 상품과 관련된 '추천 견적' 레코드도 수정(Bulk Update)
+                Integer plus = reqUpdateProductInfoDto.getPrice() - product.getPrice();
+                recommendedProductRepository.plusPriceByProductId(productId, plus);
+            }
             product.setPrice(reqUpdateProductInfoDto.getPrice());
         }
 

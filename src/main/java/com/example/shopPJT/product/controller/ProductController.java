@@ -6,6 +6,8 @@ import com.example.shopPJT.product.dto.ReqProductDto;
 import com.example.shopPJT.product.dto.ReqUpdateProductInfoDto;
 import com.example.shopPJT.product.dto.ResProductDto;
 import com.example.shopPJT.product.service.ProductService;
+import com.example.shopPJT.recommendedProduct.dto.ResRecommended;
+import com.example.shopPJT.recommendedProduct.service.RecommendedProductService;
 import com.example.shopPJT.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,9 +30,12 @@ import java.util.List;
 @Tag(name = "상품 API")
 public class ProductController {
     private final ProductService productService;
+    private final RecommendedProductService recommendedProductService;
+
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, RecommendedProductService recommendedProductService) {
         this.productService = productService;
+        this.recommendedProductService = recommendedProductService;
     }
 
     @GetMapping("/{categoryName}/latest/{startOffset}")
@@ -86,5 +91,11 @@ public class ProductController {
         } catch (IOException e) {
             throw new ApplicationException(ApplicationError.IMAGE_LOAD_FAIL);
         }
+    }
+
+    @GetMapping("/recommend/{usageId}/{budget}")
+    @Operation(summary = "용도와 예산에 맞는 추천 견적 정보 반환", description = "견적에 해당하는 모든 상품의 세부 정보를 반환합니다.")
+    public ResponseEntity<ResRecommended> getRecommendedProduct(@PathVariable("usageId") Integer usageId, @PathVariable("budget") Integer budget) {
+        return ResponseEntity.ok().body(recommendedProductService.getRecommendedProduct(usageId, budget));
     }
 }

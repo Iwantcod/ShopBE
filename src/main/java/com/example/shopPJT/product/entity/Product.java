@@ -9,6 +9,9 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
+@Table(indexes = {
+        @Index(name = "idx_category_id_logicalfk_price", columnList = "category_id, logicalfk, price")
+})
 @org.hibernate.annotations.Check(constraints = "inventory >= 0") // 재고 수량이 반드시 0 이상이도록 제한하는 DB레벨 제약사항
 public class Product {
     @Id @GeneratedValue @Column(name = "PRODUCT_ID")
