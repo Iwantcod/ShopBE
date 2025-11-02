@@ -18,6 +18,9 @@ public class ProductSpecJobService {
     private final PowerSpecRepository powerSpecRepository;
     private final StorageSpecRepository storageSpecRepository;
 
+    /**
+     * 각 모델 테이블의 모든 부품 모델의 'avg_price' 계산하는 스케줄링 메서드
+     */
     @Transactional
     @Scheduled(cron = "0 0 3 1/1 * *", zone = "Asia/Seoul")
     public void updateAvgPrice() {

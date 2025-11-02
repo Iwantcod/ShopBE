@@ -27,7 +27,10 @@ public class RecommendedProductService {
         this.productService = productService;
     }
 
-    // 최신화
+
+    /**
+     * 추천 견적 상품 최신화 스케줄링 메서드
+     */
     @Transactional
     @Scheduled(cron = "0 0 4 1/1 * *", zone = "Asia/Seoul")
     public void updateRecommendedProduct() {
