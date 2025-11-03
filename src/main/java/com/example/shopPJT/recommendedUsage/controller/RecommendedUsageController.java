@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/recommeded-usage")
+@RequestMapping("/api/recommended-usage")
 public class RecommendedUsageController {
     private final RecommendedUsageService recommendedUsageService;
     @Autowired
