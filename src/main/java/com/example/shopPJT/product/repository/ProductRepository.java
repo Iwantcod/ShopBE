@@ -33,6 +33,40 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Integer categoryId);
 
     /**
+     * 특정 카테고리의 상품 가격 높은 순 조회
+     * @param categoryName
+     * @param pageSize
+     * @param offset
+     * @return
+     */
+    @Query("""
+        SELECT p.id
+        FROM Product p
+        WHERE p.category.id = (SELECT c.id FROM Category c WHERE c.name = :categoryName)
+        AND p.isDeleted = false
+        ORDER BY p.price DESC
+        LIMIT :pageSize OFFSET :offset
+    """)
+    List<Long> findProductIdsByCategoryNameOrderByPriceDesc(@Param("categoryName") String categoryName, @Param("pageSize") int pageSize, @Param("offset") int offset);
+
+    /**
+     * 특정 카테고리의 상품 가격 낮은 순 조회
+     * @param categoryName
+     * @param pageSize
+     * @param offset
+     * @return
+     */
+    @Query("""
+        SELECT p.id
+        FROM Product p
+        WHERE p.category.id = (SELECT c.id FROM Category c WHERE c.name = :categoryName)
+        AND p.isDeleted = false
+        ORDER BY p.price ASC
+        LIMIT :pageSize OFFSET :offset
+    """)
+    List<Long> findProductIdsByCategoryNameOrderByPriceAsc(@Param("categoryName") String categoryName, @Param("pageSize") int pageSize, @Param("offset") int offset);
+
+    /**
      * 특정 카테고리의 상품 최신순 조회
      * @param categoryName
      * @param pageSize
@@ -45,7 +79,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     ORDER BY p.createdAt DESC, p.id DESC
     LIMIT :pageSize OFFSET :offset
     """)
-    List<Long> findActiveProductIdListByCategoryIdOrderByCreatedAtDesc(@Param("categoryName") String categoryName, @Param("pageSize") long pageSize, @Param("offset") long offset);
+    List<Long> findActiveProductIdListByCategoryNameOrderByCreatedAtDesc(@Param("categoryName") String categoryName, @Param("pageSize") long pageSize, @Param("offset") long offset);
 
     /**
      * 카테고리 분류 상관 없이 최신순 조회(현재 관리자 기능)

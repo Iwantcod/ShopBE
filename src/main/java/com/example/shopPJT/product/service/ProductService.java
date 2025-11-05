@@ -108,7 +108,7 @@ public class ProductService {
             startOffset = 0;
         }
         categoryName = categoryName.toLowerCase(); // 카테고리명 소문자화
-        List<Long> productIds = productRepository.findActiveProductIdListByCategoryIdOrderByCreatedAtDesc(categoryName, startOffset, PAGE_SIZE);
+        List<Long> productIds = productRepository.findActiveProductIdListByCategoryNameOrderByCreatedAtDesc(categoryName, PAGE_SIZE, startOffset * PAGE_SIZE);
         if(productIds.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
@@ -139,7 +139,7 @@ public class ProductService {
         if(startOffset == null) {
             startOffset = 0;
         }
-        List<Long> productIds = productRepository.findAllActiveProductIdWithoutCategory(PAGE_SIZE, startOffset);
+        List<Long> productIds = productRepository.findAllActiveProductIdWithoutCategory(PAGE_SIZE, startOffset * PAGE_SIZE);
         if(productIds.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
@@ -151,29 +151,25 @@ public class ProductService {
 
     @Transactional(readOnly = true) // 두번째 인자의 값에 따라 분기하여 가격 순 내림차순(true)/오름차순(false) 조회 결과를 페이징하여 응답
     public List<ResProductDto> getAllProductPrice(String categoryName, Integer startOffset, boolean isDescending) {
-        Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
-                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
         if(startOffset == null) {
             startOffset = 0;
         }
+        categoryName = categoryName.toLowerCase();
 
-        Pageable pageable;
+        List<Long> productIds = null;
         if(isDescending){
             // isDescending이 true이면 내림차순 정렬(가격 높은 순 정렬)
-            pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("price").descending());
+            productIds = productRepository.findProductIdsByCategoryNameOrderByPriceDesc(categoryName, PAGE_SIZE, startOffset * PAGE_SIZE);
         } else {
             // isDescending이 false이면 오름차순 정렬(가격 낮은 순 정렬)
-            pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("price").ascending());
+            productIds = productRepository.findProductIdsByCategoryNameOrderByPriceAsc(categoryName, PAGE_SIZE, startOffset * PAGE_SIZE);
         }
-
-        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
-        if(products.isEmpty()){
-            log.error("GET Product FAIL: Cannot find Product.");
+        if(productIds.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
-        Slice<ResProductDto> dtoPage = products.map(this::toDto);
-        return dtoPage.getContent();
+        List<Product> products = productRepository.findProductListJoinUsers(productIds);
+        return products.stream().map(this::toDto).toList();
     }
 
     @Transactional(readOnly = true) // 식별자로 조회
