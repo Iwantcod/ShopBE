@@ -32,8 +32,47 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.isDeleted = false AND p.category.id = :categoryId")
     Slice<Product> findAllActiveProduct(Pageable pageable, @Param("categoryId") Integer categoryId);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.user WHERE p.isDeleted = false")
-    Slice<Product> findAllActiveProductWithoutCategory(Pageable pageable);
+    /**
+     * 특정 카테고리의 상품 최신순 조회
+     * @param categoryName
+     * @param pageSize
+     * @param offset
+     * @return
+     */
+    @Query("""
+    SELECT p.id FROM Product p
+    WHERE p.category.id = (SELECT c.id FROM Category c WHERE c.name = :categoryName) AND p.isDeleted = false
+    ORDER BY p.createdAt DESC, p.id DESC
+    LIMIT :pageSize OFFSET :offset
+    """)
+    List<Long> findActiveProductIdListByCategoryIdOrderByCreatedAtDesc(@Param("categoryName") String categoryName, @Param("pageSize") long pageSize, @Param("offset") long offset);
+
+    /**
+     * 카테고리 분류 상관 없이 최신순 조회(현재 관리자 기능)
+     * @param pageSize
+     * @param offset
+     * @return
+     */
+    @Query("""
+    SELECT p.id FROM Product p
+    WHERE p.isDeleted = false
+    ORDER BY p.createdAt DESC, p.id DESC
+    LIMIT :pageSize OFFSET :offset
+    """)
+    List<Long> findAllActiveProductIdWithoutCategory(@Param("pageSize") long pageSize, @Param("offset") long offset);
+
+
+    /**
+     * 상품 식별자 리스트를 통해 해당 상품과 유저를 조인한 결과를 반환
+     * @param productIds 상품 리스트
+     * @return
+     */
+    @Query("""
+    SELECT p FROM Product p
+    JOIN FETCH p.user
+    WHERE p.id IN :productIds
+    """)
+    List<Product> findProductListJoinUsers(List<Long> productIds);
 
     @Query("""
         SELECT p FROM Product p

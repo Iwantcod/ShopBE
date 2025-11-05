@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -49,6 +50,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductSpecServiceFactory productSpecServiceFactory;
     private final RecommendedProductRepository recommendedProductRepository;
+    private final int PAGE_SIZE = 10;
 
     @Value("${app.storage-path}")
     private String storagePath;
@@ -102,28 +104,20 @@ public class ProductService {
     public List<ResProductDto> getAllProductDesc(String categoryName, Integer startOffset) {
         // 프론트로부터 1,2,3,4... 의 값을 받는다. 이 값에 10을 곱한 값이 조회 시작지점이다.
 
-        Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
-                new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
-        // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
         if(startOffset == null) {
             startOffset = 0;
         }
-
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
-        Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
-        if(products.isEmpty()){
+        categoryName = categoryName.toLowerCase(); // 카테고리명 소문자화
+        List<Long> productIds = productRepository.findActiveProductIdListByCategoryIdOrderByCreatedAtDesc(categoryName, startOffset, PAGE_SIZE);
+        if(productIds.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
-
-        Slice<ResProductDto> dtoPage = products.map(this::toDto);
-        return dtoPage.getContent(); // Page 객체의 메타데이터 없이 본문 데이터만 반환
+        List<Product> products = productRepository.findProductListJoinUsers(productIds);
+        return products.stream().map(this::toDto).toList();
     }
 
     @Transactional(readOnly = true) // 판매량 기준 내림차순 정렬, 페이징한 결과 응답
     public List<ResProductDto> getAllProductVolumeDesc(String categoryName, Integer startOffset) {
-        int pageSize = 10;
-
         if(startOffset == null) {
             startOffset = 0;
         }
@@ -131,7 +125,7 @@ public class ProductService {
         Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
                 new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
 
-        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("volume").descending());
+        Pageable pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("volume").descending());
         Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
         if(products.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
@@ -140,26 +134,23 @@ public class ProductService {
         return dtoPage.getContent();
     }
 
-    @Transactional(readOnly = true) // 카테고리 관계없이 최신순 페이징 조회
+    @Transactional(readOnly = true) // 카테고리 관계없이 최신순 페이징 조회: 관리자 기능
     public List<ResProductDto> getAllProductVolumeDesc(Integer startOffset) {
-        int pageSize = 10;
-
         if(startOffset == null) {
             startOffset = 0;
         }
-        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
-        Slice<Product> products = productRepository.findAllActiveProductWithoutCategory(pageable);
-        if(products.isEmpty()){
+        List<Long> productIds = productRepository.findAllActiveProductIdWithoutCategory(PAGE_SIZE, startOffset);
+        if(productIds.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
         }
-        Slice<ResProductDto> dtoPage = products.map(this::toDto);
-        return dtoPage.getContent();
+        List<Product> products = productRepository.findProductListJoinUsers(productIds);
+
+        return products.stream().map(this::toDto).toList();
     }
 
 
     @Transactional(readOnly = true) // 두번째 인자의 값에 따라 분기하여 가격 순 내림차순(true)/오름차순(false) 조회 결과를 페이징하여 응답
     public List<ResProductDto> getAllProductPrice(String categoryName, Integer startOffset, boolean isDescending) {
-        int pageSize = 10;
         Category category = categoryRepository.findByName(categoryName).orElseThrow(() ->
                 new ApplicationException(ApplicationError.CATEGORY_NOT_FOUND));
         // url로 전달받은 카테고리가 존재하지 않는 카테고리인 경우 조회 불가
@@ -170,10 +161,10 @@ public class ProductService {
         Pageable pageable;
         if(isDescending){
             // isDescending이 true이면 내림차순 정렬(가격 높은 순 정렬)
-            pageable = PageRequest.of(startOffset, pageSize, Sort.by("price").descending());
+            pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("price").descending());
         } else {
             // isDescending이 false이면 오름차순 정렬(가격 낮은 순 정렬)
-            pageable = PageRequest.of(startOffset, pageSize, Sort.by("price").ascending());
+            pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("price").ascending());
         }
 
         Slice<Product> products = productRepository.findAllActiveProduct(pageable, category.getId());
@@ -198,8 +189,7 @@ public class ProductService {
             startOffset = 0;
         }
 
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("createdAt").descending());
         Slice<Product> productList = productRepository.findAllByNameKey(pageable, nameKey);
         if(productList.isEmpty()){
             throw new ApplicationException(ApplicationError.PRODUCT_NOT_FOUND);
@@ -216,9 +206,8 @@ public class ProductService {
         if(startOffset == null) {
             startOffset = 0;
         }
-        int pageSize = 10;
 
-        Pageable pageable = PageRequest.of(startOffset, pageSize, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(startOffset, PAGE_SIZE, Sort.by("createdAt").descending());
         Slice<Product> productList = productRepository.findAllActiveByUserId(pageable, userId);
         if(productList.isEmpty()){
             log.info("GET Product FAIL: Cannot find Product.");
