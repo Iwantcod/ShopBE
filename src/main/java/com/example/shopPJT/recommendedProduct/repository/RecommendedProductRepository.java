@@ -52,6 +52,25 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
     """)
     void plusPriceByProductId(@Param("productId") Long productId, @Param("plusPrice") Integer plusPrice);
 
+
+    /**
+     * '견적 상품'을 생성할 수 있는 '견적 원본 식별자' 조회
+     * @return
+     */
+    @Query(value = """
+    SELECT recommended_original_id FROM recommended_original o
+    JOIN graphic_spec    gra ON o.graphicspec_id    = gra.graphicspec_id
+    WHERE EXISTS(SELECT 1 FROM product WHERE category_id = 1 AND logicalfk = o.cpuspec_id)
+        AND (gra.manufacturer IS NULL OR EXISTS(SELECT 1 FROM product WHERE category_id = 2 AND logicalfk = gra.graphicspec_id))
+        AND EXISTS(SELECT 1 FROM product WHERE category_id = 3 AND logicalfk = o.casespec_id)
+        AND EXISTS(SELECT 1 FROM product WHERE category_id = 4 AND logicalfk = o.memoryspec_id)
+        AND EXISTS(SELECT 1 FROM product WHERE category_id = 5 AND logicalfk = o.powerspec_id)
+        AND EXISTS(SELECT 1 FROM product WHERE category_id = 6 AND logicalfk = o.mainboardspec_id)
+        AND EXISTS(SELECT 1 FROM product WHERE category_id = 7 AND logicalfk = o.coolerspec_id)
+        AND EXISTS(SELECT 1 FROM product WHERE category_id = 8 AND logicalfk = o.storagespec_id);
+    """, nativeQuery = true)
+    List<Long> findPossibleOriginal();
+
     /**
      * 모든 '견적 원본'에 대한 '실제 상품 조합'을 반환
      * @return
@@ -141,9 +160,10 @@ public interface RecommendedProductRepository extends JpaRepository<RecommendedP
     JOIN power_spec      po  ON o.powerspec_id      = po.powerspec_id
     JOIN main_board_spec ma  ON o.mainboardspec_id  = ma.mainboardspec_id
     JOIN cooler_spec     coo ON o.coolerspec_id     = coo.coolerspec_id
-    JOIN storage_spec    st  ON o.storagespec_id    = st.storagespec_id;
+    JOIN storage_spec    st  ON o.storagespec_id    = st.storagespec_id
+    WHERE o.recommended_original_id IN (:originalIds)
     """, nativeQuery = true)
-    List<RecommendedPick> findBestProductPerComponent();
+    List<RecommendedPick> findBestProductPerComponent(List<Long> originalIds);
 
 
     /**

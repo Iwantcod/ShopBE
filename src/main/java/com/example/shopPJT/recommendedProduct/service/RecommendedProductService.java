@@ -34,7 +34,14 @@ public class RecommendedProductService {
     @Transactional
     @Scheduled(cron = "0 0 4 1/1 * *", zone = "Asia/Seoul")
     public void updateRecommendedProduct() {
-        List<RecommendedPick> bestPickList = recommendedProductRepository.findBestProductPerComponent();
+        // '견적 상품'을 생성할 수 있는 '견적 원본 식별자' 조회
+        // 생성 가능 기준: 견적 원본 구성 요소에 해당하는 상품이 모두 존재
+        List<Long> possibleOriginalIds = recommendedProductRepository.findPossibleOriginal();
+        if(possibleOriginalIds.isEmpty()) {
+            return;
+        }
+
+        List<RecommendedPick> bestPickList = recommendedProductRepository.findBestProductPerComponent(possibleOriginalIds);
         for(RecommendedPick rp : bestPickList) {
             Integer totalPrice = recommendedProductRepository.getRecommendedTotalPrice(rp.getCpuSpecId(), rp.getGraphicSpecId(), rp.getCaseSpecId(), rp.getMemorySpecId(),
                     rp.getPowerSpecId(), rp.getMainboardSpecId(), rp.getCoolerSpecId(), rp.getStorageSpecId());

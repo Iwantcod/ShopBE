@@ -71,7 +71,6 @@ class ShopPjtApplicationTests {
 	}
 
 	@Test
-	@Disabled
 	@DisplayName("견적 상품 insert")
 	void insertRP() {
 		recommendedProductService.updateRecommendedProduct();
