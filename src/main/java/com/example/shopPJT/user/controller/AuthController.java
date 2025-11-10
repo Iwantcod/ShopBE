@@ -48,8 +48,8 @@ public class AuthController {
     @PostMapping(value = "/join-complete", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "OAuth2 가입자 추가 정보 저장")
     public ResponseEntity<Void> joinComplete(@ModelAttribute @Valid JoinCompleteDto joinCompleteDto, HttpServletRequest request) {
-        Long userId = (Long) request.getSession().getAttribute("incompleteMemberId");
-        request.getSession().removeAttribute("incompleteMemberId");
+        Long userId = (Long) request.getSession().getAttribute("incompleteUserId");
+        request.getSession().removeAttribute("incompleteUserId");
         userService.completeJoin(userId, joinCompleteDto);
         return ResponseEntity.ok().build();
     }
