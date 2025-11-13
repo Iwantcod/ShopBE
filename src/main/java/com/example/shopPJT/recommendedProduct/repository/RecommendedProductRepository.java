@@ -11,46 +11,53 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RecommendedProductRepository extends JpaRepository<RecommendedProduct, Long> {
+
+    /**
+     * 상품 가격 수정 시 이를 반영할 추천 견적 레코드 조회(조건에 해당되는 레코드 중 가장 최근에 생성된 것)
+     * @param productId
+     * @return
+     */
+    @Query("""
+    select p.recommendedProductId from RecommendedProduct p
+    where p.cpuProduct.id = :productId
+            or p.graphicProduct.id = :productId
+            or p.caseProduct.id = :productId
+            or p.memoryProduct.id = :productId
+            or p.powerProduct.id = :productId
+            or p.mainboardProduct.id = :productId
+            or p.coolerProduct.id = :productId
+            or p.storageProduct.id = :productId
+    order by p.createdAt desc
+    limit 1
+    """)
+    Long getUpdateTargetId(@Param("productId") Long productId);
+
     /**
      * 상품 가격 감소 시 '견적 상품' 테이블의 레코드에도 수정사항 반영
      *
-     * @param productId  수정한 상품의 식별자
+     * @param targetId  수정할 견적의 식별자
      * @param minusPrice 가격 감소분
      */
     @Modifying
     @Query("""
         update RecommendedProduct p set p.totalPrice = p.totalPrice - :minusPrice
-        where p.cpuProduct.id = :productId
-            or p.graphicProduct.id = :productId
-            or p.caseProduct.id = :productId
-            or p.memoryProduct.id = :productId
-            or p.powerProduct.id = :productId
-            or p.mainboardProduct.id = :productId
-            or p.coolerProduct.id = :productId
-            or p.storageProduct.id = :productId
+        where p.recommendedProductId = :targetId
     """)
-    void minusPriceByProductId(@Param("productId") Long productId, @Param("minusPrice") Integer minusPrice);
+    void minusPriceByProductId(@Param("targetId") Long targetId, @Param("minusPrice") Integer minusPrice);
 
 
     /**
      * 상품 가격 증가 시 '견적 상품' 테이블의 레코드에도 수정사항 반영
      *
-     * @param productId 수정한 상품의 식별자
+     * @param targetId 수정할 견적의 식별자
      * @param plusPrice 가격 증가분
      */
     @Modifying
     @Query("""
-        update RecommendedProduct p set p.totalPrice = p.totalPrice - :plusPrice
-        where p.cpuProduct.id = :productId
-            or p.graphicProduct.id = :productId
-            or p.caseProduct.id = :productId
-            or p.memoryProduct.id = :productId
-            or p.powerProduct.id = :productId
-            or p.mainboardProduct.id = :productId
-            or p.coolerProduct.id = :productId
-            or p.storageProduct.id = :productId
+        update RecommendedProduct p set p.totalPrice = p.totalPrice + :plusPrice
+        where p.recommendedProductId = :targetId
     """)
-    void plusPriceByProductId(@Param("productId") Long productId, @Param("plusPrice") Integer plusPrice);
+    void plusPriceByProductId(@Param("targetId") Long targetId, @Param("plusPrice") Integer plusPrice);
 
 
     /**

@@ -367,14 +367,16 @@ public class ProductService {
         }
 
         if(reqUpdateProductInfoDto.getPrice() != null && reqUpdateProductInfoDto.getPrice() > 0) {
+            Long recommendedProductId = recommendedProductRepository.getUpdateTargetId(productId);
+
             if(product.getPrice() > reqUpdateProductInfoDto.getPrice()) {
                 // 가격 감소 시 해당 상품과 관련된 '추천 견적' 레코드도 수정(Bulk Update)
                 Integer minus = product.getPrice() - reqUpdateProductInfoDto.getPrice();
-                recommendedProductRepository.minusPriceByProductId(productId, minus);
+                recommendedProductRepository.minusPriceByProductId(recommendedProductId, minus);
             } else if(product.getPrice() < reqUpdateProductInfoDto.getPrice()) {
                 // 가격 상승 시 해당 상품과 관련된 '추천 견적' 레코드도 수정(Bulk Update)
                 Integer plus = reqUpdateProductInfoDto.getPrice() - product.getPrice();
-                recommendedProductRepository.plusPriceByProductId(productId, plus);
+                recommendedProductRepository.plusPriceByProductId(recommendedProductId, plus);
             }
             product.setPrice(reqUpdateProductInfoDto.getPrice());
         }
